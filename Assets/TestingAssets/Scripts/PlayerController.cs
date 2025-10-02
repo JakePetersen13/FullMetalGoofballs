@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("---Speed---")]
+    [Header("---Physics---")]
     public float maxSpeed = 15f;
-    public float moveSpeed = 5f;
+    public float accelerationRate = 5f;
+    public float gravityForce = 15f;
     [Header("---References---")]
     public Rigidbody rb;
     public Camera mainCamera;
@@ -17,29 +18,37 @@ public class PlayerController : MonoBehaviour
 
     void HandleMovement()
     {
+        //-----MOVEMENT-----
         Vector3 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
         if (moveDir.sqrMagnitude > 0.01f)
         {
+            // Applies force based on moveDir vector
             moveDir.Normalize();
-            rb.AddForce(moveDir * moveSpeed, ForceMode.Acceleration);
+            rb.AddForce(moveDir * accelerationRate, ForceMode.Acceleration);
 
+            // maxSpeed cap
             if (rb.velocity.magnitude > maxSpeed)
                 rb.velocity = rb.velocity.normalized * maxSpeed;
         }
         else
         {
+            // deceleration
             if (rb.velocity.magnitude > 0.01f)
             {
                 Vector3 decelDir = -rb.velocity.normalized;
-                rb.AddForce(decelDir * moveSpeed, ForceMode.Acceleration);
+                rb.AddForce(decelDir * accelerationRate, ForceMode.Acceleration);
 
                 if (rb.velocity.magnitude < 0.1f)
                     rb.velocity = Vector3.zero;
             }
         }
+
+        // Gravity
+        rb.AddForce(Vector3.down * gravityForce, ForceMode.Acceleration);
     }
 
+    // rotates player model towards the mouse, based on its position, given by main camera
     void RotateTowardsMouse()
     {
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -56,5 +65,21 @@ public class PlayerController : MonoBehaviour
                 rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, 0.2f));
             }
         }
+    }
+
+    void Jump()
+    {
+        Vector3 moveDir = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
+
+        if (moveDir.sqrMagnitude > 0.01f)
+            moveDir.Normalize();
+        else
+            moveDir = transform.forward; // jump forward if no input
+
+
+        Vector3 jumpDir = (moveDir + Vector3.up).normalized;
+
+        // apply impulse
+        rb.AddForce(jumpDir * jumpForce, ForceMode.Impulse);
     }
 }
