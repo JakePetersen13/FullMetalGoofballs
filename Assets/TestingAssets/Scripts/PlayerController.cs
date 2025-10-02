@@ -66,20 +66,4 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
-    void Jump()
-    {
-        Vector3 moveDir = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
-
-        if (moveDir.sqrMagnitude > 0.01f)
-            moveDir.Normalize();
-        else
-            moveDir = transform.forward; // jump forward if no input
-
-
-        Vector3 jumpDir = (moveDir + Vector3.up).normalized;
-
-        // apply impulse
-        rb.AddForce(jumpDir * jumpForce, ForceMode.Impulse);
-    }
 }
