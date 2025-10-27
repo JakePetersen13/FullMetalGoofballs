@@ -21,14 +21,10 @@ public class PlayerController : MonoBehaviour
     public float lungeForce = 20f;
     public float lungeDuration = 0.3f;
     public float lungeCooldown = 0.5f;
-    public float armExtendForce = 30f;
-    public float armExtendDuration = 0.2f;
 
     private bool isLunging = false;
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
-    private bool armExtended = false;
-    private float armExtendTimer = 0f;
 
     void Update()
     {
@@ -40,7 +36,6 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
         RotateTowardsMouse();
         UpdateLunge();
-        UpdateArmExtension();
     }
 
     void HandleLungeInput()
@@ -66,13 +61,6 @@ public class PlayerController : MonoBehaviour
         // Apply instant forward force
         Vector3 lungeDirection = transform.forward;
         rb.AddForce(lungeDirection * lungeForce, ForceMode.VelocityChange);
-
-        // Start arm extension
-        if (rightUpperArm != null)
-        {
-            armExtended = true;
-            armExtendTimer = armExtendDuration;
-        }
     }
 
     void UpdateLunge()
@@ -85,41 +73,6 @@ public class PlayerController : MonoBehaviour
             {
                 isLunging = false;
             }
-        }
-    }
-
-    void UpdateArmExtension()
-    {
-        if (armExtended)
-        {
-            armExtendTimer -= Time.fixedDeltaTime;
-
-            if (armExtendTimer > 0f)
-            {
-                ExtendRightArm();
-            }
-            else
-            {
-                armExtended = false;
-            }
-        }
-    }
-
-    void ExtendRightArm()
-    {
-        if (rightUpperArm == null) return;
-
-        // Calculate forward direction relative to the body
-        Vector3 extendDirection = ragdollHips.rotation * Vector3.forward;
-        extendDirection += ragdollHips.rotation * Vector3.right * 0.3f; // Slight offset to right
-
-        // Apply force to extend the arm forward
-        rightUpperArm.AddForce(extendDirection * armExtendForce, ForceMode.Force);
-
-        if (rightLowerArm != null)
-        {
-            // Extend lower arm as well for full reach
-            rightLowerArm.AddForce(extendDirection * armExtendForce * 0.7f, ForceMode.Force);
         }
     }
 
