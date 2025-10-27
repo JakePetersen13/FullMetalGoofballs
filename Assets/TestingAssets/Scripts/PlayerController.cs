@@ -9,6 +9,9 @@ public class PlayerController : MonoBehaviour
     [Header("---References---")]
     public Rigidbody rb;
     public Camera mainCamera;
+    [Header("---Ragdoll---")]
+    public Rigidbody ragdollHips;
+    public bool ragdollActive = false;
 
     void FixedUpdate()
     {
@@ -58,12 +61,24 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 hitPoint = ray.GetPoint(enter);
             Vector3 lookDir = hitPoint - transform.position;
-            lookDir.y = 0; 
+            lookDir.y = 0;
+
             if (lookDir.sqrMagnitude > 0.001f)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(lookDir);
-                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, 0.2f));
+
+                if (ragdollActive)
+                {
+                    RotateRagdollTowards(targetRotation);
+                }
             }
         }
     }
+
+    void RotateRagdollTowards(Quaternion targetRot)
+    {
+        ragdollHips.MoveRotation(Quaternion.Slerp(ragdollHips.rotation, targetRot, 0.5f));
+    }
+
+
 }
