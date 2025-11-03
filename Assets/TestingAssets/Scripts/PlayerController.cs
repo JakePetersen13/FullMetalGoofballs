@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("---Ragdoll---")]
     public Rigidbody ragdollHips;
-    public float ragdollRotationTorque = 50f;
+    public float ragdollRotationTorque;
     public Rigidbody rightUpperArm;
     public Rigidbody rightLowerArm;
 
