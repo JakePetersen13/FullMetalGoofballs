@@ -122,6 +122,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!54 &591504358 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 5355646333922654783, guid: 5d7301078a52a8442ac023ec2a4052a1, type: 3}
+  m_PrefabInstance: {fileID: 1595914261}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -216,6 +221,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!54 &1065416016 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 657235606703127994, guid: 5d7301078a52a8442ac023ec2a4052a1, type: 3}
+  m_PrefabInstance: {fileID: 1595914261}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1595914261
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -232,6 +242,14 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 6120211839793602395}
+    - target: {fileID: 4388233417338024529, guid: 5d7301078a52a8442ac023ec2a4052a1, type: 3}
+      propertyPath: rightLowerArm
+      value: 
+      objectReference: {fileID: 1065416016}
+    - target: {fileID: 4388233417338024529, guid: 5d7301078a52a8442ac023ec2a4052a1, type: 3}
+      propertyPath: rightUpperArm
+      value: 
+      objectReference: {fileID: 591504358}
     - target: {fileID: 4388233417338024529, guid: 5d7301078a52a8442ac023ec2a4052a1, type: 3}
       propertyPath: ragdollRotationTorque
       value: 800
