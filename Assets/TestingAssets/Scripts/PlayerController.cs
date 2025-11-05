@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("---Physics---")]
-    public float maxSpeed = 15f;
+    public float baseMaxSpeed = 15f;
     public float accelerationRate = 5f;
     public float gravityForce = 15f;
 
@@ -16,21 +16,37 @@ public class PlayerController : MonoBehaviour
     public float ragdollRotationTorque;
     public Rigidbody rightUpperArm;
     public Rigidbody rightLowerArm;
+    public Transform weaponHolder; // Attach weapon model here (right hand)
+    public Vector3 weaponPositionOffset = Vector3.zero;
+    public Vector3 weaponRotationOffset = Vector3.zero;
 
     [Header("---Attack---")]
-    public float lungeForce = 20f;
+    public float baseLungeForce = 20f;
     public float lungeDuration = 0.3f;
     public float lungeCooldown = 0.5f;
-    public float lungeDamage = 25f;
+
+    [Header("---Weapon---")]
+    public WeaponData currentWeapon;
 
     private bool isLunging = false;
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
     private bool hasDealtDamage = false;
+    private GameObject equippedWeaponModel;
 
     [Header("---Player---")]
     public float HP = 100f;
     public float maxHP = 100f;
+
+    // Calculated values based on weapon
+    private float maxSpeed;
+    private float lungeForce;
+    private float lungeDamage;
+
+    void Start()
+    {
+        EquipWeapon(currentWeapon);
+    }
 
     void Update()
     {
@@ -43,6 +59,39 @@ public class PlayerController : MonoBehaviour
         RotateTowardsMouse();
         UpdateLunge();
         checkHP();
+    }
+
+    // Equip a weapon and update stats
+    public void EquipWeapon(WeaponData weapon)
+    {
+        if (weapon == null)
+        {
+            Debug.LogWarning("No weapon data provided!");
+            return;
+        }
+
+        currentWeapon = weapon;
+
+        // Calculate stats based on weapon
+        maxSpeed = baseMaxSpeed * weapon.speedMultiplier;
+        lungeForce = baseLungeForce * weapon.lungeForceMultiplier;
+        lungeDamage = weapon.damage;
+
+        // Remove old weapon model
+        if (equippedWeaponModel != null)
+        {
+            Destroy(equippedWeaponModel);
+        }
+
+        // Spawn new weapon model
+        if (weapon.weaponPrefab != null && weaponHolder != null)
+        {
+            equippedWeaponModel = Instantiate(weapon.weaponPrefab, weaponHolder);
+            equippedWeaponModel.transform.localPosition = Vector3.zero;
+            equippedWeaponModel.transform.localRotation = Quaternion.identity;
+        }
+
+        Debug.Log($"Equipped {weapon.weaponName}: Damage={lungeDamage}, Speed={maxSpeed}, LungeForce={lungeForce}");
     }
 
     void HandleLungeInput()
@@ -66,7 +115,7 @@ public class PlayerController : MonoBehaviour
         cooldownTimer = lungeCooldown;
         hasDealtDamage = false;
 
-        // Apply instant forward force
+        // Apply instant forward force (uses weapon-modified lungeForce)
         Vector3 lungeDirection = transform.forward;
         rb.AddForce(lungeDirection * lungeForce, ForceMode.VelocityChange);
     }
@@ -98,10 +147,10 @@ public class PlayerController : MonoBehaviour
             moveDir.Normalize();
             rb.AddForce(moveDir * accelerationRate * movementMultiplier, ForceMode.Acceleration);
 
-            // maxSpeed cap
+            // maxSpeed cap (uses weapon-modified maxSpeed)
             if (rb.velocity.magnitude > maxSpeed && !isLunging)
                 rb.velocity = rb.velocity.normalized * maxSpeed;
-         
+
         }
         else
         {
@@ -191,7 +240,7 @@ public class PlayerController : MonoBehaviour
             {
                 enemy.TakeDamage(lungeDamage);
                 hasDealtDamage = true;
-                Debug.Log("Player hit enemy for " + lungeDamage + " damage!");
+                Debug.Log($"Player hit enemy for {lungeDamage} damage with {currentWeapon.weaponName}!");
             }
         }
     }
