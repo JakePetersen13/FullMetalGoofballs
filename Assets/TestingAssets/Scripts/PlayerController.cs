@@ -21,10 +21,16 @@ public class PlayerController : MonoBehaviour
     public float lungeForce = 20f;
     public float lungeDuration = 0.3f;
     public float lungeCooldown = 0.5f;
+    public float lungeDamage = 25f;
 
     private bool isLunging = false;
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
+    private bool hasDealtDamage = false;
+
+    [Header("---Player---")]
+    public float HP = 100f;
+    public float maxHP = 100f;
 
     void Update()
     {
@@ -36,6 +42,7 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
         RotateTowardsMouse();
         UpdateLunge();
+        checkHP();
     }
 
     void HandleLungeInput()
@@ -57,6 +64,7 @@ public class PlayerController : MonoBehaviour
         isLunging = true;
         lungeTimer = lungeDuration;
         cooldownTimer = lungeCooldown;
+        hasDealtDamage = false;
 
         // Apply instant forward force
         Vector3 lungeDirection = transform.forward;
@@ -91,8 +99,9 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(moveDir * accelerationRate * movementMultiplier, ForceMode.Acceleration);
 
             // maxSpeed cap
-            if (rb.velocity.magnitude > maxSpeed)
+            if (rb.velocity.magnitude > maxSpeed && !isLunging)
                 rb.velocity = rb.velocity.normalized * maxSpeed;
+         
         }
         else
         {
@@ -148,5 +157,42 @@ public class PlayerController : MonoBehaviour
         }
 
         ragdollHips.angularVelocity *= 0.95f;
+    }
+
+    void checkHP()
+    {
+        if (HP <= 0f)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Debug.Log("Player died!");
+        this.gameObject.SetActive(false);
+    }
+
+    // Called by enemies when they hit the player
+    public void TakeDamage(float damage)
+    {
+        HP -= damage;
+        HP = Mathf.Clamp(HP, 0f, maxHP);
+        Debug.Log($"Player took {damage} damage. HP: {HP}");
+    }
+
+    // Detect collision with enemies during lunge
+    void OnCollisionEnter(Collision collision)
+    {
+        if (isLunging && !hasDealtDamage && collision.gameObject.CompareTag("Enemy"))
+        {
+            EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(lungeDamage);
+                hasDealtDamage = true;
+                Debug.Log("Player hit enemy for " + lungeDamage + " damage!");
+            }
+        }
     }
 }
