@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public Transform weaponHolder; // Attach weapon model here (right hand)
     public Vector3 weaponPositionOffset = Vector3.zero;
     public Vector3 weaponRotationOffset = Vector3.zero;
+    public Vector3 weaponScaleOverride = Vector3.one; // Force weapon scale
 
     [Header("---Attack---")]
     public float baseLungeForce = 20f;
@@ -77,19 +78,7 @@ public class PlayerController : MonoBehaviour
         lungeForce = baseLungeForce * weapon.lungeForceMultiplier;
         lungeDamage = weapon.damage;
 
-        // Remove old weapon model
-        if (equippedWeaponModel != null)
-        {
-            Destroy(equippedWeaponModel);
-        }
-
-        // Spawn new weapon model
-        if (weapon.weaponPrefab != null && weaponHolder != null)
-        {
-            equippedWeaponModel = Instantiate(weapon.weaponPrefab, weaponHolder);
-            equippedWeaponModel.transform.localPosition = Vector3.zero;
-            equippedWeaponModel.transform.localRotation = Quaternion.identity;
-        }
+   
 
         Debug.Log($"Equipped {weapon.weaponName}: Damage={lungeDamage}, Speed={maxSpeed}, LungeForce={lungeForce}");
     }

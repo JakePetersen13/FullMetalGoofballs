@@ -16,10 +16,15 @@ public class EnemyController : MonoBehaviour
     public float moveSpeed = 8f;
 
     [Header("---AI Attack---")]
-    public float aiLungeForce = 15f;
+    public float baseLungeForce = 15f;
     public float aiLungeDuration = 0.3f;
     public float aiLungeCooldown = 2f;
-    public float aiLungeDamage = 20f;
+
+    [Header("---Weapon---")]
+    public WeaponData enemyWeapon;
+
+    private float aiLungeForce;
+    private float aiLungeDamage;
 
     [Header("---Physics---")]
     public float gravityForce = 15f;
@@ -38,6 +43,22 @@ public class EnemyController : MonoBehaviour
         if (player == null)
         {
             Debug.LogWarning("Enemy: No player found with 'Player' tag!");
+        }
+
+        // Setup weapon stats
+        if (enemyWeapon != null)
+        {
+            aiLungeForce = baseLungeForce * enemyWeapon.lungeForceMultiplier;
+            aiLungeDamage = enemyWeapon.damage;
+            moveSpeed = moveSpeed * enemyWeapon.speedMultiplier;
+            Debug.Log($"{gameObject.name} equipped {enemyWeapon.weaponName}: Damage={aiLungeDamage}, Speed={moveSpeed}");
+        }
+        else
+        {
+            // Default values if no weapon assigned
+            aiLungeForce = baseLungeForce;
+            aiLungeDamage = 20f;
+            Debug.LogWarning($"{gameObject.name}: No weapon assigned, using default stats");
         }
     }
 
