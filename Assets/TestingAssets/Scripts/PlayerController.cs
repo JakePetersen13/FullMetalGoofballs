@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     [Header("---Player---")]
     public float HP = 100f;
     public float maxHP = 100f;
+    public bool canMove = true; // Toggle to disable/enable movement
 
     // Calculated values based on weapon
     private float maxSpeed;
@@ -51,13 +52,19 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        HandleLungeInput();
+        if (canMove)
+        {
+            HandleLungeInput();
+        }
     }
 
     void FixedUpdate()
     {
-        HandleMovement();
-        RotateTowardsMouse();
+        if (canMove)
+        {
+            HandleMovement();
+            RotateTowardsMouse();
+        }
         UpdateLunge();
         checkHP();
     }
@@ -77,8 +84,6 @@ public class PlayerController : MonoBehaviour
         maxSpeed = baseMaxSpeed * weapon.speedMultiplier;
         lungeForce = baseLungeForce * weapon.lungeForceMultiplier;
         lungeDamage = weapon.damage;
-
-   
 
         Debug.Log($"Equipped {weapon.weaponName}: Damage={lungeDamage}, Speed={maxSpeed}, LungeForce={lungeForce}");
     }
