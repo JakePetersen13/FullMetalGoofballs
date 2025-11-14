@@ -100,7 +100,7 @@ public class TutorialManager : MonoBehaviour
                 }
                 break;
             case 8:
-                StartCoroutine(waitToActivateEnemy(arenaDialouge2.length / 2f));
+                StartCoroutine(waitToActivateEnemy(arenaDialouge2.length));
                 if ( enemy2 == null && enemy3 == null && enemy4 == null)
                 {
                     audioPlayer.PlayOneShot(arenaDialouge3);
