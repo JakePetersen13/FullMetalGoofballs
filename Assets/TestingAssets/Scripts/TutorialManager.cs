@@ -104,8 +104,14 @@ public class TutorialManager : MonoBehaviour
                 if ( enemy2 == null && enemy3 == null && enemy4 == null)
                 {
                     audioPlayer.PlayOneShot(arenaDialouge3);
-                    waitToEndScene(arenaDialouge3.length + 1f);
+                    progressCounter++;
                 }
+                break;
+            case 9:
+                waitToEndScene(arenaDialouge3.length + 1f);
+                progressCounter++;
+                break;
+            case 10:
                 break;
         }
     }

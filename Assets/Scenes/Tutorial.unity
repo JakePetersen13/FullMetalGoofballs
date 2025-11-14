@@ -2044,6 +2044,10 @@ PrefabInstance:
       propertyPath: canLunge
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2546672638225931955, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
+      propertyPath: enemyWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 546b3ecb095f134498a290da2891b336, type: 2}
     - target: {fileID: 3453805468370860242, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
       propertyPath: m_Name
       value: BluePlayer4
@@ -5051,6 +5055,10 @@ PrefabInstance:
       propertyPath: canLunge
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2546672638225931955, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
+      propertyPath: enemyWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 546b3ecb095f134498a290da2891b336, type: 2}
     - target: {fileID: 3453805468370860242, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
       propertyPath: m_Name
       value: BluePlayer
