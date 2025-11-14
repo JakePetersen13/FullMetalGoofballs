@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class EnemyController : MonoBehaviour
 {
@@ -35,6 +36,9 @@ public class EnemyController : MonoBehaviour
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
     private bool hasDealtDamage = false;
+
+    // Death event - other scripts can subscribe to this
+    public bool isDead = false;
 
     void Start()
     {
@@ -192,8 +196,8 @@ public class EnemyController : MonoBehaviour
     void Die()
     {
         Debug.Log($"{gameObject.name} died!");
-        gameObject.SetActive(false);
-        // Or: Destroy(gameObject);
+        //gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     // Detect collision with player during lunge

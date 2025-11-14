@@ -20,6 +20,8 @@ public class DoorTeleporter : MonoBehaviour
     public GameObject playerInTrigger = null;
     public bool isTeleporting = false;
 
+    public bool playerTouched = false;
+
     void Update()
     {
         // If require key press, check for input
@@ -38,11 +40,13 @@ public class DoorTeleporter : MonoBehaviour
         {
             playerInRange = true;
             playerInTrigger = other.gameObject;
+            playerTouched = true;
 
             // If don't require key press, teleport immediately
             if (!requireKeyPress)
             {
-                StartCoroutine(TeleportSequence(other.gameObject));
+                if (gameObject.name != "Finish")
+                    StartCoroutine(TeleportSequence(other.gameObject));
             }
         }
     }
@@ -85,6 +89,8 @@ public class DoorTeleporter : MonoBehaviour
 
         // Small delay at black screen
         yield return new WaitForSeconds(0.1f);
+
+        player.transform.rotation = Quaternion.Euler(transform.eulerAngles.x, 90f, transform.eulerAngles.z);
 
         // Fade in
         yield return StartCoroutine(FadeScreen(1f, 0f, fadeInDuration));
