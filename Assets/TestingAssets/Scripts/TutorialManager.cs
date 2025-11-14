@@ -42,12 +42,6 @@ public class TutorialManager : MonoBehaviour
         {
             playerHealthUI = FindObjectOfType<PlayerHealthUI>();
         }
-
-        // Start with health bar hidden
-        if (playerHealthUI != null)
-        {
-            playerHealthUI.Hide();
-        }
     }
 
     void Update()
@@ -114,6 +108,11 @@ public class TutorialManager : MonoBehaviour
             case 10:
                 break;
         }
+    }
+
+    void updateHealth()
+    {
+
     }
 
     void disableMovement(float seconds)
