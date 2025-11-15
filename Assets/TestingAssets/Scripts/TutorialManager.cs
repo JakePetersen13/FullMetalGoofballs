@@ -42,12 +42,6 @@ public class TutorialManager : MonoBehaviour
         {
             playerHealthUI = FindObjectOfType<PlayerHealthUI>();
         }
-
-        // Start with health bar hidden
-        if (playerHealthUI != null)
-        {
-            playerHealthUI.Hide();
-        }
     }
 
     void Update()
@@ -100,14 +94,25 @@ public class TutorialManager : MonoBehaviour
                 }
                 break;
             case 8:
-                StartCoroutine(waitToActivateEnemy(arenaDialouge2.length / 2f));
+                StartCoroutine(waitToActivateEnemy(arenaDialouge2.length));
                 if ( enemy2 == null && enemy3 == null && enemy4 == null)
                 {
                     audioPlayer.PlayOneShot(arenaDialouge3);
-                    waitToEndScene(arenaDialouge3.length + 1f);
+                    progressCounter++;
                 }
                 break;
+            case 9:
+                waitToEndScene(arenaDialouge3.length + 1f);
+                progressCounter++;
+                break;
+            case 10:
+                break;
         }
+    }
+
+    void updateHealth()
+    {
+
     }
 
     void disableMovement(float seconds)

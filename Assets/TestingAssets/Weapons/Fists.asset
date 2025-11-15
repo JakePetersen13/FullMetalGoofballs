@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fists
   m_EditorClassIdentifier: 
   weaponName: Fists
-  damage: 5
+  damage: 50
   speedMultiplier: 1
   lungeForceMultiplier: 1
   weaponPrefab: {fileID: 0}

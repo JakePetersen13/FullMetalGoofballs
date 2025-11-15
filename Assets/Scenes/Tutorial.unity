@@ -1430,9 +1430,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 100
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2044,6 +2044,10 @@ PrefabInstance:
       propertyPath: canLunge
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2546672638225931955, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
+      propertyPath: enemyWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 546b3ecb095f134498a290da2891b336, type: 2}
     - target: {fileID: 3453805468370860242, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
       propertyPath: m_Name
       value: BluePlayer4
@@ -5051,6 +5055,10 @@ PrefabInstance:
       propertyPath: canLunge
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2546672638225931955, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
+      propertyPath: enemyWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: 546b3ecb095f134498a290da2891b336, type: 2}
     - target: {fileID: 3453805468370860242, guid: bd340275495f6a54e88f83e7bb6498ad, type: 3}
       propertyPath: m_Name
       value: BluePlayer
@@ -6463,7 +6471,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0

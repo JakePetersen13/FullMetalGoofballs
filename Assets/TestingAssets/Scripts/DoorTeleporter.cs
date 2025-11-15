@@ -80,17 +80,16 @@ public class DoorTeleporter : MonoBehaviour
         player.transform.position = destinationPos;
 
         // Optional: Match player rotation to door
-        Vector3 forwardDir = destinationDoor.forward;
+        /*Vector3 forwardDir = destinationDoor.forward;
         forwardDir.y = 0;
         if (forwardDir.sqrMagnitude > 0.01f)
         {
             player.transform.rotation = Quaternion.LookRotation(forwardDir);
-        }
+        }*/
 
         // Small delay at black screen
         yield return new WaitForSeconds(0.1f);
 
-        player.transform.rotation = Quaternion.Euler(transform.eulerAngles.x, 90f, transform.eulerAngles.z);
 
         // Fade in
         yield return StartCoroutine(FadeScreen(1f, 0f, fadeInDuration));
