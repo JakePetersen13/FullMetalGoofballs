@@ -97,13 +97,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0c775ca8361e064cbd5f8b362c0ff10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 10
+  baseMaxSpeed: 15
   accelerationRate: 30
   gravityForce: 15
   rb: {fileID: 3484093660605865153}
   mainCamera: {fileID: 0}
   ragdollHips: {fileID: 5289517300139401964}
-  ragdollActive: 1
+  ragdollRotationTorque: 0
+  rightUpperArm: {fileID: 0}
+  rightLowerArm: {fileID: 0}
+  weaponHolder: {fileID: 0}
+  weaponPositionOffset: {x: 0, y: 0, z: 0}
+  weaponRotationOffset: {x: 0, y: 0, z: 0}
+  weaponScaleOverride: {x: 1, y: 1, z: 1}
+  baseLungeForce: 20
+  lungeDuration: 0.3
+  lungeCooldown: 0.5
+  currentWeapon: {fileID: 0}
+  HP: 100
+  maxHP: 100
+  canMove: 1
 --- !u!1001 &7090811493886568756
 PrefabInstance:
   m_ObjectHideFlags: 0
