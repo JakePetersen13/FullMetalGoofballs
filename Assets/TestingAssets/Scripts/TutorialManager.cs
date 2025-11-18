@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class TutorialManager : MonoBehaviour
@@ -35,8 +36,13 @@ public class TutorialManager : MonoBehaviour
     public AudioClip arenaDialouge3;
     public AudioClip nullAudio = null;
 
+    [Header("---Controls---")]
+    public float resetFadeDuration = 0.5f;
+
     void Start()
     {
+        StartCoroutine(FadeInOnStart());
+
         // Find health UI if not assigned
         if (playerHealthUI == null)
         {
@@ -107,6 +113,17 @@ public class TutorialManager : MonoBehaviour
                 break;
             case 10:
                 break;
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            StartCoroutine(ResetLevel());
+        }
+
+        // Quit on 'Esc' key
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            QuitGame();
         }
     }
 
@@ -185,5 +202,72 @@ public class TutorialManager : MonoBehaviour
             audioPlayer.PlayOneShot(clip3);
             yield return new WaitForSeconds(clip3.length + 0.5f);
         }
+    }
+
+    IEnumerator FadeInOnStart()
+    {
+        FadeOverlay fadeOverlay = FadeOverlay.Instance;
+
+        // Start from black
+        fadeOverlay.SetAlpha(1f);
+
+        // Small delay before fading in
+        yield return new WaitForSeconds(0.1f);
+
+        // Fade in
+        float fadeDuration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+            fadeOverlay.SetAlpha(alpha);
+            yield return null;
+        }
+
+        fadeOverlay.SetAlpha(0f);
+    }
+
+    IEnumerator ResetLevel()
+    {
+        Debug.Log("Resetting level...");
+
+        // Disable player movement during reset
+        if (playerController != null)
+        {
+            playerController.canMove = false;
+        }
+
+        // Fade out
+        FadeOverlay fadeOverlay = FadeOverlay.Instance;
+        float elapsed = 0f;
+
+        while (elapsed < resetFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(0f, 1f, elapsed / resetFadeDuration);
+            fadeOverlay.SetAlpha(alpha);
+            yield return null;
+        }
+
+        fadeOverlay.SetAlpha(1f);
+
+        // Reload current scene
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void QuitGame()
+    {
+        Debug.Log("Quitting game...");
+        Application.Quit();
+        
+        #if UNITY_EDITOR
+        // Stop playing in editor
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
+        // Quit application in build
+        Application.Quit();
+        #endif
     }
 }
