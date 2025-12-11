@@ -13,7 +13,7 @@ public class Barbecue : MonoBehaviour
 
     [Header("---UI---")]
     public BarbecueHealthUI healthUI;
-    public Vector3 healthBarOffset = new Vector3(10f, 10f, 0); // Position above barbecue
+    public Vector3 healthBarOffset = new Vector3(0f, 3f, 0); // Position above barbecue
 
     [Header("---Destruction---")]
     public GameObject destructionEffect; // Optional: particle effect
