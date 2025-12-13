@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,7 +19,28 @@ public class GameManager : MonoBehaviour
     public bool autoRestartOnVictory = false;
     public float restartDelay = 5f;
 
+    [Header("---AI Spawning---")]
+    public GameObject playerAIPrefab;
+    public GameObject enemyAIPrefab;
+    public Transform playerAISpawnPoint;
+    public Transform enemyAISpawnPoint;
+    public float spawnInterval = 1.5f;
+
+    [Header("---Player Respawn---")]
+    public GameObject playerObject;
+    public PlayerController playerController;
+    public PlayerHealthUI playerHealthUI;
+    public Transform playerSpawnPoint;
+    public float playerRespawnDelay = 2f;
+
+    private const int maxPlayerAI = 3;
+    private const int maxEnemyAI = 4;
+    private List<PlayerAI> activePlayerAIs = new List<PlayerAI>();
+    private List<EnemyController> activeEnemies = new List<EnemyController>();
+    private float lastPlayerAISpawnTime = 0f;
+    private float lastEnemySpawnTime = 0f;
     private bool gameEnded = false;
+    private bool isRespawningPlayer = false;
 
     void Start()
     {
@@ -43,6 +65,132 @@ public class GameManager : MonoBehaviour
         {
             blueVictoryScreen.SetActive(false);
         }
+
+        // Initialize spawn timers to allow immediate first spawn
+        lastPlayerAISpawnTime = -spawnInterval;
+        lastEnemySpawnTime = -spawnInterval;
+    }
+
+    void Update()
+    {
+        if (gameEnded) return;
+
+        // Check if player needs respawning
+        if (!isRespawningPlayer && playerObject != null && !playerObject.activeInHierarchy)
+        {
+            StartCoroutine(RespawnPlayer());
+        }
+
+        // Clean up null references from destroyed AI
+        activePlayerAIs.RemoveAll(ai => ai == null);
+        activeEnemies.RemoveAll(enemy => enemy == null);
+
+        // Check and spawn PlayerAI if needed
+        if (activePlayerAIs.Count < maxPlayerAI && Time.time >= lastPlayerAISpawnTime + spawnInterval)
+        {
+            SpawnPlayerAI();
+            lastPlayerAISpawnTime = Time.time;
+        }
+
+        // Check and spawn Enemy if needed
+        if (activeEnemies.Count < maxEnemyAI && Time.time >= lastEnemySpawnTime + spawnInterval)
+        {
+            SpawnEnemy();
+            lastEnemySpawnTime = Time.time;
+        }
+    }
+
+    void SpawnPlayerAI()
+    {
+        if (playerAIPrefab == null || playerAISpawnPoint == null)
+        {
+            Debug.LogWarning("PlayerAI prefab or spawn point not assigned!");
+            return;
+        }
+
+        GameObject aiObj = Instantiate(playerAIPrefab, playerAISpawnPoint.position, playerAISpawnPoint.rotation);
+        PlayerAI playerAI = aiObj.GetComponent<PlayerAI>();
+
+        if (playerAI != null)
+        {
+            // Set target barbecue for the AI
+            if (enemyBarbecue != null)
+            {
+                playerAI.targetBarbecue = enemyBarbecue;
+            }
+
+            activePlayerAIs.Add(playerAI);
+            Debug.Log($"Spawned PlayerAI. Active count: {activePlayerAIs.Count}/{maxPlayerAI}");
+        }
+        else
+        {
+            Debug.LogError("PlayerAI component not found on spawned prefab!");
+        }
+    }
+
+    void SpawnEnemy()
+    {
+        if (enemyAIPrefab == null || enemyAISpawnPoint == null)
+        {
+            Debug.LogWarning("Enemy prefab or spawn point not assigned!");
+            return;
+        }
+
+        GameObject enemyObj = Instantiate(enemyAIPrefab, enemyAISpawnPoint.position, enemyAISpawnPoint.rotation);
+        EnemyController enemy = enemyObj.GetComponent<EnemyController>();
+
+        if (enemy != null)
+        {
+            // Set target barbecue for the enemy
+            if (playerBarbecue != null)
+            {
+                enemy.targetBarbecue = playerBarbecue;
+            }
+
+            activeEnemies.Add(enemy);
+            Debug.Log($"Spawned Enemy. Active count: {activeEnemies.Count}/{maxEnemyAI}");
+        }
+        else
+        {
+            Debug.LogError("EnemyController component not found on spawned prefab!");
+        }
+    }
+
+    IEnumerator RespawnPlayer()
+    {
+        isRespawningPlayer = true;
+
+        // Wait for respawn delay
+        yield return new WaitForSeconds(playerRespawnDelay);
+
+        if (playerObject != null && playerSpawnPoint != null)
+        {
+            // Move player to spawn point
+            playerObject.transform.position = playerSpawnPoint.position;
+            playerObject.transform.rotation = playerSpawnPoint.rotation;
+
+            // Reset player velocity if they have a Rigidbody
+            Rigidbody rb = playerObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+
+            playerController.HP = playerController.maxHP;
+            playerHealthUI.targetHealth = playerController.maxHP;
+
+            // Reactivate the player
+            playerObject.SetActive(true);
+
+            Debug.Log("Player respawned!");
+        }
+        else
+        {
+            Debug.LogWarning("Player object or spawn point not assigned!");
+        }
+
+        isRespawningPlayer = false;
     }
 
     void OnDestroy()
