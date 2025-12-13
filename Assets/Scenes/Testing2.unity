@@ -860,7 +860,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &891213865
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1518,6 +1518,8 @@ GameObject:
   - component: {fileID: 1626825363}
   - component: {fileID: 1626825362}
   - component: {fileID: 1626825364}
+  - component: {fileID: 1626825366}
+  - component: {fileID: 1626825365}
   m_Layer: 7
   m_Name: banana
   m_TagString: Untagged
@@ -1603,12 +1605,124 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96174dec28cd04540b2c16c6b4716def, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireRate: 0.12
+  fireRate: 2
   semiAuto: 1
   bullet: {fileID: 1203708572482856, guid: 7a993367f6f54b044b5534c04170867f, type: 3}
   barrelPos: {fileID: 434849279}
   bulletVelocity: 1000
   bulletsPerShot: 1
+  bananaShotSound: {fileID: 1626825365}
+--- !u!82 &1626825365
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1626825360}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 79ba151e844115a41b76eca844525a32, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &1626825366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1626825360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec36df5921db5cc43a752632d7acf49f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clipSize: 6
+  extraAmmo: 24
+  currentAmmo: 0
 --- !u!114 &1630527395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2187,8 +2301,8 @@ MonoBehaviour:
   wheel2: {fileID: 431975597}
   wheel3: {fileID: 406641873}
   wheel4: {fileID: 1437154105}
-  drivespeed: 400
-  steerspeed: 20
+  drivespeed: 300
+  steerspeed: 10
 --- !u!54 &2103087119
 Rigidbody:
   m_ObjectHideFlags: 0
