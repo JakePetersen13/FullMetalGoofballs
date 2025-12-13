@@ -12,7 +12,8 @@ public class AimStateManager : MonoBehaviour
     [SerializeField] float mouseSense = 1f;
 
     // Aiming variables
-    [SerializeField] Transform aimPos;
+    public Transform aimPos;
+    [HideInInspector] public Vector3 actualAimPos;
     [SerializeField] float aimSmoothSpeed = 20f;
     [SerializeField] float maxAimRadius = 10f;
     [SerializeField] Transform aimCenter; // If null, uses camFollowPos
@@ -21,7 +22,19 @@ public class AimStateManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        LockCursor();
+    }
 
+        void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible   = false;
+    }
+
+    public void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible   = true;
     }
 
     // Update is called once per frame
