@@ -2,7 +2,7 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class PlayerAI : MonoBehaviour
 {
     [Header("---Health---")]
     public float HP = 50f;
@@ -10,7 +10,7 @@ public class EnemyController : MonoBehaviour
     [Header("---References---")]
     public Rigidbody rb;
     public Rigidbody ragdollHips;
-    public Barbecue targetBarbecue; // The player's barbecue to attack
+    public Barbecue targetBarbecue; // The enemy's barbecue to attack
 
     [Header("---AI Settings---")]
     public bool canLunge = true;
@@ -24,7 +24,7 @@ public class EnemyController : MonoBehaviour
     public float aiLungeCooldown = 2f;
 
     [Header("---Weapon---")]
-    public WeaponData enemyWeapon;
+    public WeaponData weapon;
 
     private float aiLungeForce;
     private float aiLungeDamage;
@@ -33,32 +33,25 @@ public class EnemyController : MonoBehaviour
     public float gravityForce = 15f;
     public float ragdollRotationTorque = 50f;
 
-    private Transform player;
+    private Transform nearestEnemy;
     private bool isLunging = false;
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
     private bool hasDealtDamage = false;
 
-    // Death event - other scripts can subscribe to this
-    public event Action<EnemyController> OnDeath;
+    // Death event
+    public event Action<PlayerAI> OnDeath;
     public bool isDead = false;
 
     void Start()
     {
-        // Find player
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        if (player == null)
-        {
-            Debug.LogWarning("Enemy: No player found with 'Player' tag!");
-        }
-
-        // Find player's barbecue if not assigned
+        // Find enemy's barbecue if not assigned
         if (targetBarbecue == null)
         {
             Barbecue[] allBarbecues = FindObjectsOfType<Barbecue>();
             foreach (Barbecue bbq in allBarbecues)
             {
-                if (bbq.team == Team.Player)
+                if (bbq.team == Team.Enemy)
                 {
                     targetBarbecue = bbq;
                     break;
@@ -67,21 +60,20 @@ public class EnemyController : MonoBehaviour
 
             if (targetBarbecue == null)
             {
-                Debug.LogWarning("Enemy: No player barbecue found!");
+                Debug.LogWarning("PlayerAI: No enemy barbecue found!");
             }
         }
 
         // Setup weapon stats
-        if (enemyWeapon != null)
+        if (weapon != null)
         {
-            aiLungeForce = baseLungeForce * enemyWeapon.lungeForceMultiplier;
-            aiLungeDamage = enemyWeapon.damage;
-            moveSpeed = moveSpeed * enemyWeapon.speedMultiplier;
-            Debug.Log($"{gameObject.name} equipped {enemyWeapon.weaponName}: Damage={aiLungeDamage}, Speed={moveSpeed}");
+            aiLungeForce = baseLungeForce * weapon.lungeForceMultiplier;
+            aiLungeDamage = weapon.damage;
+            moveSpeed = moveSpeed * weapon.speedMultiplier;
+            Debug.Log($"{gameObject.name} equipped {weapon.weaponName}: Damage={aiLungeDamage}, Speed={moveSpeed}");
         }
         else
         {
-            // Default values if no weapon assigned
             aiLungeForce = baseLungeForce;
             aiLungeDamage = 20f;
             Debug.LogWarning($"{gameObject.name}: No weapon assigned, using default stats");
@@ -111,14 +103,17 @@ public class EnemyController : MonoBehaviour
 
     void AIBehavior()
     {
+        // Find nearest enemy
+        FindNearestEnemy();
+
         Transform currentTarget = null;
-        float distanceToPlayer = float.MaxValue;
+        float distanceToEnemy = float.MaxValue;
         float distanceToBarbecue = float.MaxValue;
 
         // Calculate distances
-        if (player != null)
+        if (nearestEnemy != null)
         {
-            distanceToPlayer = Vector3.Distance(transform.position, player.position);
+            distanceToEnemy = Vector3.Distance(transform.position, nearestEnemy.position);
         }
 
         if (targetBarbecue != null)
@@ -126,28 +121,28 @@ public class EnemyController : MonoBehaviour
             distanceToBarbecue = Vector3.Distance(transform.position, targetBarbecue.transform.position);
         }
 
-        // Prioritize player if in detection range, otherwise go for barbecue
-        if (player != null && distanceToPlayer <= detectionRange)
+        // Prioritize enemy if in detection range, otherwise go for barbecue
+        if (nearestEnemy != null && distanceToEnemy <= detectionRange)
         {
-            currentTarget = player;
+            currentTarget = nearestEnemy;
 
-            // Rotate towards player
-            RotateTowards(player.position);
+            // Rotate towards enemy
+            RotateTowards(nearestEnemy.position);
 
-            // Check if should lunge at player
-            if (canLunge && distanceToPlayer <= lungeRange && cooldownTimer <= 0f)
+            // Check if should lunge at enemy
+            if (canLunge && distanceToEnemy <= lungeRange && cooldownTimer <= 0f)
             {
                 StartLunge();
             }
-            // Move towards player if out of lunge range
-            else if (distanceToPlayer > lungeRange)
+            // Move towards enemy if out of lunge range
+            else if (distanceToEnemy > lungeRange)
             {
-                MoveTowards(player.position);
+                MoveTowards(nearestEnemy.position);
             }
         }
         else if (targetBarbecue != null)
         {
-            // No player in range, go after barbecue
+            // No enemy in range, go after barbecue
             currentTarget = targetBarbecue.transform;
 
             // Rotate towards barbecue
@@ -162,6 +157,25 @@ public class EnemyController : MonoBehaviour
             else if (distanceToBarbecue > lungeRange)
             {
                 MoveTowards(targetBarbecue.transform.position);
+            }
+        }
+    }
+
+    void FindNearestEnemy()
+    {
+        EnemyController[] enemies = FindObjectsOfType<EnemyController>();
+        float closestDistance = float.MaxValue;
+        nearestEnemy = null;
+
+        foreach (EnemyController enemy in enemies)
+        {
+            if (enemy.isDead) continue;
+
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                nearestEnemy = enemy.transform;
             }
         }
     }
@@ -241,7 +255,6 @@ public class EnemyController : MonoBehaviour
         rb.AddForce(Vector3.down * gravityForce, ForceMode.Acceleration);
     }
 
-    // Called when enemy is hit during player lunge
     public void TakeDamage(float damage)
     {
         HP -= damage;
@@ -255,44 +268,38 @@ public class EnemyController : MonoBehaviour
 
     void Die()
     {
-        if (isDead) return; // Prevent multiple death calls
+        if (isDead) return;
 
         isDead = true;
         Debug.Log($"{gameObject.name} died!");
 
-        // Trigger death event for any listeners
         OnDeath?.Invoke(this);
-
-        // Disable AI behavior
         canLunge = false;
 
-        // Optional: Add death effects here (particles, sounds, etc.)
-
-        Destroy(gameObject); // Destroy after 2 seconds
+        gameObject.SetActive(false);
     }
 
-    // Detect collision with player during lunge
     void OnCollisionEnter(Collision collision)
     {
         if (isLunging && !hasDealtDamage)
         {
-            // Hit player
-            if (collision.gameObject.CompareTag("Player"))
+            // Hit enemy
+            if (collision.gameObject.CompareTag("Enemy"))
             {
-                PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
-                if (playerController != null)
+                EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
+                if (enemy != null && !enemy.isDead)
                 {
-                    playerController.TakeDamage(aiLungeDamage);
+                    enemy.TakeDamage(aiLungeDamage);
                     hasDealtDamage = true;
-                    Debug.Log("Enemy hit player for " + aiLungeDamage + " damage!");
+                    Debug.Log("PlayerAI hit enemy for " + aiLungeDamage + " damage!");
                 }
             }
-            // Hit player's barbecue
+            // Hit enemy's barbecue
             else if (targetBarbecue != null && collision.gameObject == targetBarbecue.gameObject)
             {
                 targetBarbecue.TakeDamage(aiLungeDamage, gameObject);
                 hasDealtDamage = true;
-                Debug.Log("Enemy hit player's barbecue for " + aiLungeDamage + " damage!");
+                Debug.Log("PlayerAI hit enemy's barbecue for " + aiLungeDamage + " damage!");
             }
         }
     }
