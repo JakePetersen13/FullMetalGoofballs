@@ -30,8 +30,8 @@ public class PlayerHealthUI : MonoBehaviour
     [Header("---Visibility---")]
     public bool isVisible = true;
 
-    private float targetHealth;
-    private float displayedHealth;
+    public float targetHealth;
+    public float displayedHealth;
 
     void Start()
     {
@@ -62,7 +62,10 @@ public class PlayerHealthUI : MonoBehaviour
     {
         if (playerController == null) return;
 
-        targetHealth = playerController.HP;
+        if (targetHealth == playerController.maxHP)
+            targetHealth = playerController.HP;
+        else
+            targetHealth = playerController.HP - 1;
 
         // Smooth health bar animation
         if (animateHealthChange)

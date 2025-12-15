@@ -135,7 +135,7 @@ public class Barbecue : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         // Check if hit by player lunge
-        if (team == Team.Enemy && collision.gameObject.CompareTag("Player"))
+        if (CompareTag("Enemy") && collision.gameObject.CompareTag("Player"))
         {
             PlayerController player = collision.gameObject.GetComponent<PlayerController>();
             if (player != null && player.GetComponent<PlayerController>() != null)
@@ -146,13 +146,13 @@ public class Barbecue : MonoBehaviour
             }
         }
         // Check if hit by enemy lunge
-        else if (team == Team.Player && collision.gameObject.CompareTag("Enemy"))
+        else if (CompareTag("Player") && collision.gameObject.CompareTag("Enemy"))
         {
             EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
             if (enemy != null && !enemy.isDead)
             {
                 // Enemy hit player's barbecue
-                float damage = 20f; // Or get from enemy's weapon
+                float damage = 25f; // Or get from enemy's weapon
                 TakeDamage(damage, collision.gameObject);
             }
         }
