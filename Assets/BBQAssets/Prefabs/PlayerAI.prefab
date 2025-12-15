@@ -113,6 +113,7 @@ MonoBehaviour:
   aiLungeDuration: 0.3
   aiLungeCooldown: 2
   impactParticlePrefab: {fileID: 7166437076614814184, guid: b470fc78d9649e84780c01bea2c1a4ad, type: 3}
+  deathParticlePrefab: {fileID: 999779622443648148, guid: 86aad8d3ed465b74f9d489380128febc, type: 3}
   weapon: {fileID: 11400000, guid: 546b3ecb095f134498a290da2891b336, type: 2}
   gravityForce: 15
   ragdollRotationTorque: 50
@@ -124,7 +125,7 @@ MonoBehaviour:
   BBQHit: {fileID: 8300000, guid: 79ba151e844115a41b76eca844525a32, type: 3}
   minPitchVariation: 0.8
   maxPitchVariation: 1.2
-  deathSoundDelay: 0.5
+  deathSoundDelay: 1.5
   isLunging: 0
   isDead: 0
 --- !u!114 &-4176945869572906451

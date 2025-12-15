@@ -26,6 +26,7 @@ public class EnemyController : MonoBehaviour
     public float aiLungeDuration = 0.3f;
     public float aiLungeCooldown = 2f;
     public GameObject impactParticlePrefab; // Impact effect when hitting something
+    public GameObject deathParticlePrefab;
 
     [Header("---Weapon---")]
     public WeaponData enemyWeapon;
@@ -279,6 +280,11 @@ public class EnemyController : MonoBehaviour
     {
         if (isDead) return; // Prevent multiple death calls
 
+        GameObject death = Instantiate(
+            deathParticlePrefab,
+            transform.position,
+            Quaternion.identity
+        );
         isDead = true;
         Debug.Log($"{gameObject.name} died!");
 
@@ -290,7 +296,7 @@ public class EnemyController : MonoBehaviour
 
         // Play death sound and wait before deactivating
         PlayDeathScream();
-
+        Destroy(death, 2f);
         // Start coroutine to deactivate after sound plays
         StartCoroutine(DeactivateAfterDeath());
     }
@@ -302,6 +308,7 @@ public class EnemyController : MonoBehaviour
 
         // Now deactivate the GameObject
         gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     // Detect collision with player during lunge

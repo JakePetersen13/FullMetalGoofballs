@@ -53,7 +53,9 @@ public class PlayerController : MonoBehaviour
 
     [Header("---Particle---")]
     public GameObject impactParticlePrefab; // Impact effect when hitting something
-    public GameObject hurtParticlePrefab; 
+    public GameObject hurtParticlePrefab;
+    public GameObject deathParticlePrefab;
+    public DamageFlashUI damageFlashUI;
 
     // Calculated values based on weapon
     private float maxSpeed;
@@ -232,12 +234,22 @@ public class PlayerController : MonoBehaviour
 
         isDead = true;
         Debug.Log("Player died!");
+        canMove = false;
 
         // Play death sound and wait before deactivating
         PlayDeathScream();
+        damageFlashUI.KeepOn();
+
+        GameObject death = Instantiate(
+            deathParticlePrefab,
+            transform.position,
+            Quaternion.identity
+        );
 
         // Start coroutine to deactivate after sound plays
         StartCoroutine(DeactivateAfterDeath());
+
+        Destroy(death, 2f);
     }
 
     void PlayDeathScream()
@@ -281,12 +293,13 @@ public class PlayerController : MonoBehaviour
         Vector3 hurtPos = mainCamera.transform.position +
                           mainCamera.transform.forward * distanceFromCamera;
 
+        damageFlashUI.Flash();
+
         GameObject hurt = Instantiate(
             hurtParticlePrefab,
             hurtPos,
             Quaternion.identity
         );
-        Debug.Log("WE DID IT");
 
         // Parent to camera so it follows view
         hurt.transform.SetParent(mainCamera.transform);

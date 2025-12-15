@@ -40,11 +40,24 @@ public class GameManager : MonoBehaviour
     private bool gameEnded = false;
     private bool isRespawningPlayer = false;
 
+    [Header("---Game Start---")]
+    public TextMeshProUGUI countdownText;
+    public AudioSource countdownAudioSource;
+    public AudioClip countdown;
+    public AudioClip music;
+    public float countdownInterval = 1f;
+
+    public AudioClip redWins;
+    public AudioClip blueWins;
+    public AudioClip explode;
+
     void Start()
     {
+        Time.timeScale = 0f;
 
-        //StartCoroutine(waitForGameStart());
-        // Subscribe to barbecue destruction events
+        FadeOverlay.Instance.SetAlpha(1f); // full black
+
+        StartCoroutine(GameStartSequence());
         if (playerBarbecue != null)
         {
             playerBarbecue.OnDestroyed += HandleBarbecueDestroyed;
@@ -199,10 +212,12 @@ public class GameManager : MonoBehaviour
             }
 
             playerObject.GetComponent<PlayerController>().HP = playerObject.GetComponent<PlayerController>().maxHP;
+            playerObject.GetComponent<PlayerController>().canMove = true;
             // Reactivate the player
             playerObject.SetActive(true);
 
             Debug.Log("Player respawned!");
+            playerObject.GetComponent<PlayerController>().damageFlashUI.SetTransparent();
         }
         else
         {
@@ -240,12 +255,21 @@ public class GameManager : MonoBehaviour
         {
             // Player barbecue destroyed = Blue team (enemy) wins
             Debug.Log("Player barbecue destroyed! Blue Team (Enemy) Wins!");
+            countdownAudioSource.Stop();
+            countdownAudioSource.loop = false;
+            countdownAudioSource.volume = 1f;
+            countdownAudioSource.PlayOneShot(explode);
             StartCoroutine(SlowDownAndShowVictory(blueVictoryScreen));
+
         }
         else if (destroyedBarbecue == enemyBarbecue)
         {
             // Enemy barbecue destroyed = Red team (player) wins
             Debug.Log("Enemy barbecue destroyed! Red Team (Player) Wins!");
+            countdownAudioSource.Stop();
+            countdownAudioSource.loop = false;
+            countdownAudioSource.volume = 1f;
+            countdownAudioSource.PlayOneShot(explode);
             StartCoroutine(SlowDownAndShowVictory(redVictoryScreen));
         }
     }
@@ -304,8 +328,13 @@ public class GameManager : MonoBehaviour
         // Show victory screen
         yield return StartCoroutine(ShowVictoryScreen(victoryScreen));
 
-        // Fade in from black to reveal victory screen
-        float fadeInDuration = 0.5f;
+        if (victoryScreen == redVictoryScreen)
+            countdownAudioSource.PlayOneShot(redWins);
+        else
+            countdownAudioSource.PlayOneShot(blueWins);
+
+            // Fade in from black to reveal victory screen
+            float fadeInDuration = 0.5f;
         elapsed = 0f;
 
         while (elapsed < fadeInDuration)
@@ -365,4 +394,49 @@ public class GameManager : MonoBehaviour
     {
         return enemyBarbecue != null ? enemyBarbecue.currentHP : 0f;
     }
+    IEnumerator GameStartSequence()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+
+        countdownAudioSource.PlayOneShot(countdown);
+        if (countdownText != null)
+            countdownText.gameObject.SetActive(true);
+
+        for (int i = 3; i > 0; i--)
+        {
+            countdownText.text = i.ToString();
+
+
+            yield return new WaitForSecondsRealtime(countdownInterval);
+        }
+
+        // GO!
+        countdownText.text = "GO!";
+
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        countdownText.gameObject.SetActive(false);
+
+        // Fade in & unpause
+        float fadeDuration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / fadeDuration;
+
+            FadeOverlay.Instance.SetAlpha(Mathf.Lerp(1f, 0f, t));
+            yield return null;
+        }
+
+        FadeOverlay.Instance.SetAlpha(0f);
+        Time.timeScale = 1f;
+        countdownAudioSource.volume = 0.25f;
+        countdownAudioSource.loop = true;
+        countdownAudioSource.clip = music;
+        countdownAudioSource.Play();
+    }
+
+
 }

@@ -56,6 +56,7 @@ public class TutorialManager : MonoBehaviour
         {
             case 1:
                 disableMovement(4f + barracksDialouge1.length + barracksDialouge2.length + barracksDialouge3.length);
+                audioSource.pitch = 1f;
                 audioPlayer.PlayOneShot(reville, 0.15f);
                 StartCoroutine(audioWaitThenPlayInOrder(3f, barracksDialouge1, barracksDialouge2, barracksDialouge3));
                 progressCounter++;
@@ -65,12 +66,14 @@ public class TutorialManager : MonoBehaviour
                     progressCounter++;
                 break;
             case 3:
+                audioSource.pitch = 1f;
                 playerController.rb.velocity = Vector3.zero;
                 disableMovement(hallwayDialouge1.length);
                 audioPlayer.PlayOneShot(hallwayDialouge1);
                 progressCounter++;
                 break;
             case 4:
+                audioSource.pitch = 1f;
                 if (hallwayTrigger.playerTouched)
                 {
                     playerController.rb.velocity = Vector3.zero;
@@ -80,10 +83,12 @@ public class TutorialManager : MonoBehaviour
                 }
                 break;
             case 5:
+                audioSource.pitch = 1f;
                 if (door2.playerTouched)
                     progressCounter++;
                 break;
             case 6:
+                audioSource.pitch = 1f;
                 playerController.rb.velocity = Vector3.zero;
                 disableMovement(arenaDialouge1.length);
                 audioPlayer.PlayOneShot(arenaDialouge1);
@@ -92,6 +97,7 @@ public class TutorialManager : MonoBehaviour
             case 7:
                 if (enemy1 == null)
                 {
+                    audioSource.pitch = 1f;
                     playerController.rb.velocity = Vector3.zero;
                     disableMovement(arenaDialouge2.length);
                     audioPlayer.PlayOneShot(arenaDialouge2);
@@ -103,27 +109,18 @@ public class TutorialManager : MonoBehaviour
                 StartCoroutine(waitToActivateEnemy(arenaDialouge2.length));
                 if ( enemy2 == null && enemy3 == null && enemy4 == null)
                 {
+                    audioSource.pitch = 1f;
                     audioPlayer.PlayOneShot(arenaDialouge3);
                     progressCounter++;
                 }
                 break;
             case 9:
+                audioSource.pitch = 1f;
                 waitToEndScene(arenaDialouge3.length + 1f);
                 progressCounter++;
                 break;
             case 10:
                 break;
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            StartCoroutine(ResetLevel());
-        }
-
-        // Quit on 'Esc' key
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            QuitGame();
         }
     }
 

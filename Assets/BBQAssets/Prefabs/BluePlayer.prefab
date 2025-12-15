@@ -114,6 +114,7 @@ MonoBehaviour:
   aiLungeDuration: 0.3
   aiLungeCooldown: 2
   impactParticlePrefab: {fileID: 7166437076614814184, guid: b470fc78d9649e84780c01bea2c1a4ad, type: 3}
+  deathParticlePrefab: {fileID: 8659669609658741668, guid: 89765071f16c04744b1d8652a5dbb73d, type: 3}
   enemyWeapon: {fileID: 11400000, guid: 546b3ecb095f134498a290da2891b336, type: 2}
   gravityForce: 15
   ragdollRotationTorque: 50

@@ -26,6 +26,7 @@ public class PlayerAI : MonoBehaviour
     public float aiLungeDuration = 0.3f;
     public float aiLungeCooldown = 2f;
     public GameObject impactParticlePrefab; // Impact effect when hitting something
+    public GameObject deathParticlePrefab;
 
     [Header("---Weapon---")]
     public WeaponData weapon;
@@ -337,6 +338,11 @@ public class PlayerAI : MonoBehaviour
     void Die()
     {
         if (isDead) return;
+        GameObject death = Instantiate(
+            deathParticlePrefab,
+            transform.position,
+            Quaternion.identity
+        );
 
         isDead = true;
         Debug.Log($"{gameObject.name} died!");
@@ -346,6 +352,8 @@ public class PlayerAI : MonoBehaviour
 
         // Play death sound and wait before deactivating
         PlayDeathScream();
+
+        Destroy(death, 2f);
 
         // Start coroutine to deactivate after sound plays
         StartCoroutine(DeactivateAfterDeath());
