@@ -11828,6 +11828,7 @@ MonoBehaviour:
   arenaDialouge2: {fileID: 8300000, guid: 64387cd509c88d842b121e3048538cf6, type: 3}
   arenaDialouge3: {fileID: 8300000, guid: bb609649905167e44837426e83387520, type: 3}
   nullAudio: {fileID: 0}
+  endTutorial: 0
   resetFadeDuration: 0.5
 --- !u!4 &2141427014
 Transform:
@@ -12091,6 +12092,14 @@ PrefabInstance:
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 8981d576fdf246447a4bc534dd34e1ee, type: 3}
+    - target: {fileID: 230805903816919834, guid: 060db067cec13cd488cbfbbc431df70d, type: 3}
+      propertyPath: audioPlayer
+      value: 
+      objectReference: {fileID: 2141427015}
+    - target: {fileID: 230805903816919834, guid: 060db067cec13cd488cbfbbc431df70d, type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 6120211839793602399}
     - target: {fileID: 230805903816919834, guid: 060db067cec13cd488cbfbbc431df70d, type: 3}
       propertyPath: deathParticlePrefab
       value: 

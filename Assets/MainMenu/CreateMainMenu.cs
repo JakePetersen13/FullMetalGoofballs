@@ -9,10 +9,10 @@ using UnityEditor;
 public class CreateMainMenu : MonoBehaviour
 {
 #if UNITY_EDITOR
-    [MenuItem("GameObject/UI/Create Main Menu", false, 14)]
+    [MenuItem("GameObject/UI/Create Goofy Military Main Menu", false, 14)]
     static void CreateMainMenuUI()
     {
-        // Create Canvas
+        // ================= CANVAS =================
         GameObject canvasObj = new GameObject("MainMenuCanvas");
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -23,11 +23,11 @@ public class CreateMainMenu : MonoBehaviour
 
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // Create Background
+        // ================= BACKGROUND =================
         GameObject bg = new GameObject("Background");
         bg.transform.SetParent(canvas.transform, false);
         Image bgImage = bg.AddComponent<Image>();
-        bgImage.color = new Color(0.1f, 0.1f, 0.15f, 1f);
+        bgImage.color = new Color(0.08f, 0.08f, 0.12f);
 
         RectTransform bgRect = bg.GetComponent<RectTransform>();
         bgRect.anchorMin = Vector2.zero;
@@ -35,63 +35,82 @@ public class CreateMainMenu : MonoBehaviour
         bgRect.offsetMin = Vector2.zero;
         bgRect.offsetMax = Vector2.zero;
 
-        // Create Title
+        // ================= TITLE =================
         GameObject titleObj = new GameObject("Title");
         titleObj.transform.SetParent(canvas.transform, false);
 
         TextMeshProUGUI titleText = titleObj.AddComponent<TextMeshProUGUI>();
-        titleText.text = "FULL METAL\nGOOFBALLS";
-        titleText.fontSize = 80;
-        titleText.color = new Color(1f, 0.8f, 0.2f); // Gold color
+        titleText.text = "FULL METAL\nGOOFBALLS™";
+        titleText.fontSize = 84;
+        titleText.color = new Color(1f, 0.85f, 0.25f);
         titleText.alignment = TextAlignmentOptions.Center;
         titleText.fontStyle = FontStyles.Bold;
 
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.5f, 0.7f);
-        titleRect.anchorMax = new Vector2(0.5f, 0.7f);
-        titleRect.sizeDelta = new Vector2(800, 250);
-        titleRect.anchoredPosition = Vector2.zero;
+        titleRect.anchorMin = new Vector2(0.5f, 0.75f);
+        titleRect.anchorMax = new Vector2(0.5f, 0.75f);
+        titleRect.sizeDelta = new Vector2(900, 250);
 
-        // Create Description Text (below title)
+        // ================= CLASSIFICATION STAMP =================
+        GameObject stampObj = new GameObject("ClassificationStamp");
+        stampObj.transform.SetParent(canvas.transform, false);
+
+        TextMeshProUGUI stampText = stampObj.AddComponent<TextMeshProUGUI>();
+        stampText.text = "? TOP SECRET ?\nAUTHORIZED PERSONNEL ONLY";
+        stampText.fontSize = 22;
+        stampText.color = new Color(1f, 0.2f, 0.2f);
+        stampText.alignment = TextAlignmentOptions.Center;
+        stampText.fontStyle = FontStyles.Bold | FontStyles.Italic;
+
+        RectTransform stampRect = stampObj.GetComponent<RectTransform>();
+        stampRect.anchorMin = new Vector2(0.5f, 0.63f);
+        stampRect.anchorMax = new Vector2(0.5f, 0.63f);
+        stampRect.sizeDelta = new Vector2(700, 80);
+
+        // ================= DESCRIPTION =================
         GameObject descObj = new GameObject("DescriptionText");
         descObj.transform.SetParent(canvas.transform, false);
 
         TextMeshProUGUI descText = descObj.AddComponent<TextMeshProUGUI>();
-        descText.text = "SELECT A MODE";
-        descText.fontSize = 28;
-        descText.color = new Color(0.8f, 0.8f, 0.9f); // Light gray
+        descText.text = "SERVICE GUARANTEES NOTHING";
+        descText.fontSize = 30;
+        descText.color = new Color(0.9f, 0.9f, 1f);
         descText.alignment = TextAlignmentOptions.Center;
         descText.fontStyle = FontStyles.Italic;
 
         RectTransform descRect = descObj.GetComponent<RectTransform>();
         descRect.anchorMin = new Vector2(0.5f, 0.55f);
         descRect.anchorMax = new Vector2(0.5f, 0.55f);
-        descRect.sizeDelta = new Vector2(900, 100);
-        descRect.anchoredPosition = Vector2.zero;
+        descRect.sizeDelta = new Vector2(1000, 120);
 
-        // Create Menu Panel
+        // ================= MENU PANEL =================
         GameObject menuPanel = new GameObject("MenuPanel");
         menuPanel.transform.SetParent(canvas.transform, false);
 
         RectTransform menuRect = menuPanel.AddComponent<RectTransform>();
         menuRect.anchorMin = new Vector2(0.5f, 0.3f);
         menuRect.anchorMax = new Vector2(0.5f, 0.3f);
-        menuRect.sizeDelta = new Vector2(500, 400);
-        menuRect.anchoredPosition = Vector2.zero;
+        menuRect.sizeDelta = new Vector2(520, 420);
 
-        // Create Buttons
-        Button tutorialBtn = CreateMenuButton(menuPanel, "TutorialButton", "TUTORIAL", 0);
-        Button bbqBtn = CreateMenuButton(menuPanel, "BBQButton", "OPERATION:\nBURNING BARBECUE", -100);
-        Button cartBtn = CreateMenuButton(menuPanel, "ShoppingCartButton", "OPERATION:\nSHOPPING SCUFFLE", -200);
-        Button exitBtn = CreateMenuButton(menuPanel, "ExitButton", "EXIT GAME", -300);
+        // ================= BUTTONS =================
+        Button tutorialBtn = CreateMenuButton(menuPanel, "TutorialButton",
+            "BASIC TRAINING\n(NO SURVIVORS)", 0);
 
-        // Style exit button differently
+        Button bbqBtn = CreateMenuButton(menuPanel, "BBQButton",
+            "OPERATION:\nCHARRED DOMINANCE", -100);
+
+        Button cartBtn = CreateMenuButton(menuPanel, "ShoppingCartButton",
+            "OPERATION:\nTACTICAL GROCERY", -200);
+
+        Button exitBtn = CreateMenuButton(menuPanel, "ExitButton",
+            "ABANDON POST", -300);
+
         ColorBlock exitColors = exitBtn.colors;
         exitColors.normalColor = new Color(0.8f, 0.2f, 0.2f);
         exitColors.highlightedColor = new Color(1f, 0.3f, 0.3f);
         exitBtn.colors = exitColors;
 
-        // Add MainMenu component
+        // ================= MAIN MENU LOGIC =================
         MainMenu mainMenu = canvasObj.AddComponent<MainMenu>();
         mainMenu.tutorialButton = tutorialBtn;
         mainMenu.bbqButton = bbqBtn;
@@ -100,7 +119,7 @@ public class CreateMainMenu : MonoBehaviour
         mainMenu.descriptionText = descText;
 
         Selection.activeGameObject = canvasObj;
-        Debug.Log("Main Menu created successfully!");
+        Debug.Log("Goofy Military Main Menu created!");
     }
 
     static Button CreateMenuButton(GameObject parent, string name, string text, float yOffset)
@@ -108,46 +127,43 @@ public class CreateMainMenu : MonoBehaviour
         GameObject buttonObj = new GameObject(name);
         buttonObj.transform.SetParent(parent.transform, false);
 
-        RectTransform buttonRect = buttonObj.AddComponent<RectTransform>();
-        buttonRect.anchorMin = new Vector2(0.5f, 1f);
-        buttonRect.anchorMax = new Vector2(0.5f, 1f);
-        buttonRect.sizeDelta = new Vector2(450, 80);
-        buttonRect.anchoredPosition = new Vector2(0, yOffset);
+        RectTransform rect = buttonObj.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 1f);
+        rect.anchorMax = new Vector2(0.5f, 1f);
+        rect.sizeDelta = new Vector2(460, 82);
+        rect.anchoredPosition = new Vector2(0, yOffset);
 
-        // Button component
-        Button button = buttonObj.AddComponent<Button>();
-        Image buttonImage = buttonObj.AddComponent<Image>();
-        buttonImage.color = new Color(0.3f, 0.3f, 0.4f);
+        Image img = buttonObj.AddComponent<Image>();
+        img.color = new Color(0.3f, 0.3f, 0.4f);
 
-        // Button colors
-        ColorBlock colors = button.colors;
+        Button btn = buttonObj.AddComponent<Button>();
+        btn.targetGraphic = img;
+
+        ColorBlock colors = btn.colors;
         colors.normalColor = new Color(0.3f, 0.3f, 0.4f);
-        colors.highlightedColor = new Color(0.4f, 0.4f, 0.5f);
+        colors.highlightedColor = new Color(0.45f, 0.45f, 0.55f);
         colors.pressedColor = new Color(0.2f, 0.2f, 0.3f);
-        colors.selectedColor = new Color(0.35f, 0.35f, 0.45f);
-        button.colors = colors;
+        btn.colors = colors;
 
-        button.transition = Selectable.Transition.ColorTint;
-        button.targetGraphic = buttonImage;
-
-        // Button text
+        // Text
         GameObject textObj = new GameObject("Text");
         textObj.transform.SetParent(buttonObj.transform, false);
 
-        TextMeshProUGUI buttonText = textObj.AddComponent<TextMeshProUGUI>();
-        buttonText.text = text;
-        buttonText.fontSize = 32;
-        buttonText.color = Color.white;
-        buttonText.alignment = TextAlignmentOptions.Center;
-        buttonText.fontStyle = FontStyles.Bold;
+        TextMeshProUGUI txt = textObj.AddComponent<TextMeshProUGUI>();
+        txt.text = text;
+        txt.fontSize = 32;
+        txt.color = Color.white;
+        txt.alignment = TextAlignmentOptions.Center;
+        txt.fontStyle = FontStyles.Bold;
 
-        RectTransform textRect = textObj.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = new Vector2(10, 10);
-        textRect.offsetMax = new Vector2(-10, -10);
+        RectTransform txtRect = txt.GetComponent<RectTransform>();
+        txtRect.anchorMin = Vector2.zero;
+        txtRect.anchorMax = Vector2.one;
+        txtRect.offsetMin = new Vector2(10, 10);
+        txtRect.offsetMax = new Vector2(-10, -10);
 
-        return button;
+        buttonObj.AddComponent<ButtonJitter>();
+        return btn;
     }
 #endif
 }

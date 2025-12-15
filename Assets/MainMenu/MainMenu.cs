@@ -6,29 +6,18 @@ using UnityEngine.EventSystems;
 
 public class MainMenu : MonoBehaviour
 {
-    [Header("---Menu Buttons---")]
+    [Header("---Buttons---")]
     public Button tutorialButton;
     public Button bbqButton;
     public Button shoppingCartButton;
     public Button exitButton;
 
-    [Header("---Description Text---")]
+    [Header("---Description---")]
     public TextMeshProUGUI descriptionText;
-    public string defaultDescription = "SELECT A MODE";
 
-    [Header("---Button Descriptions---")]
-    [TextArea(2, 4)]
-    public string tutorialDescription = "Learn the basics of combat and movement";
-    [TextArea(2, 4)]
-    public string bbqDescription = "Defend your BBQ and destroy the enemy's grill!";
-    [TextArea(2, 4)]
-    public string shoppingCartDescription = "Shopping chaos! Protect your cart from rivals!";
-    [TextArea(2, 4)]
-    public string exitDescription = "Exit to desktop";
-
-    [Header("---Scene Names---")]
+    [Header("---Scenes---")]
     public string tutorialSceneName = "Tutorial";
-    public string bbqSceneName = "BBQ_Level";
+    public string bbqSceneName = "BBQ";
     public string shoppingCartSceneName = "ShoppingCart_Level";
 
     [Header("---Audio---")]
@@ -36,112 +25,92 @@ public class MainMenu : MonoBehaviour
     public AudioClip buttonClickSound;
     public AudioClip hoverSound;
 
+    string[] slogans =
+    {
+        "SERVICE GUARANTEES NOTHING",
+        "PROUDLY UNTESTED",
+        "QUALITY IS OPTIONAL",
+        "BUDGET WAS CUT",
+        "NOW WITH 30% MORE FREEDOM"
+    };
+
     void Start()
     {
-        // Setup button listeners
-        if (tutorialButton != null)
-        {
-            tutorialButton.onClick.AddListener(() => LoadScene(tutorialSceneName));
-            AddHoverEvents(tutorialButton, tutorialDescription);
-        }
-
-        if (bbqButton != null)
-        {
-            bbqButton.onClick.AddListener(() => LoadScene(bbqSceneName));
-            AddHoverEvents(bbqButton, bbqDescription);
-        }
-
-        if (shoppingCartButton != null)
-        {
-            shoppingCartButton.onClick.AddListener(() => LoadScene(shoppingCartSceneName));
-            AddHoverEvents(shoppingCartButton, shoppingCartDescription);
-        }
-
-        if (exitButton != null)
-        {
-            exitButton.onClick.AddListener(ExitGame);
-            AddHoverEvents(exitButton, exitDescription);
-        }
-
-        // Setup audio source
         if (audioSource == null)
-        {
             audioSource = gameObject.AddComponent<AudioSource>();
-        }
 
-        // Set default description
-        if (descriptionText != null)
-        {
-            descriptionText.text = defaultDescription;
-        }
+        descriptionText.text = slogans[Random.Range(0, slogans.Length)];
+
+        SetupButton(tutorialButton,
+            "FAILURE IS NOT PERMITTED.\nYOU WILL LEARN. QUICKLY.",
+            () => LoadScene(tutorialSceneName));
+
+        SetupButton(bbqButton,
+            "DEFEND THE GRILL.\nTHE MEAT MUST FLOW.",
+            () => LoadScene(bbqSceneName));
+
+        SetupButton(shoppingCartButton,
+            "URBAN WARFARE.\nAISLE SEVEN IS HOSTILE.",
+            () => LoadScene(shoppingCartSceneName));
+
+        SetupButton(exitButton,
+            "DESERTION WILL BE NOTED.",
+            ExitGame);
     }
 
-    void AddHoverEvents(Button button, string description)
+    void SetupButton(Button button, string hoverText, UnityEngine.Events.UnityAction clickAction)
     {
-        EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();
-        if (trigger == null)
+        if (button == null) return;
+
+        ButtonJitter jitter = button.GetComponent<ButtonJitter>();
+        button.onClick.AddListener(clickAction);
+
+        EventTrigger trigger = button.gameObject.AddComponent<EventTrigger>();
+
+        EventTrigger.Entry enter = new EventTrigger.Entry
         {
-            trigger = button.gameObject.AddComponent<EventTrigger>();
-        }
+            eventID = EventTriggerType.PointerEnter
+        };
+        enter.callback.AddListener((_) =>
+        {
+            descriptionText.text = hoverText;
+            descriptionText.color = Random.value > 0.5f
+                ? new Color(1f, 0.25f, 0.25f)
+                : new Color(1f, 0.9f, 0.3f);
 
-        // Hover enter
-        EventTrigger.Entry enterEntry = new EventTrigger.Entry();
-        enterEntry.eventID = EventTriggerType.PointerEnter;
-        enterEntry.callback.AddListener((data) => { OnButtonHover(description); });
-        trigger.triggers.Add(enterEntry);
+            jitter?.StartJitter();
+            audioSource?.PlayOneShot(hoverSound);
+        });
 
-        // Hover exit
-        EventTrigger.Entry exitEntry = new EventTrigger.Entry();
-        exitEntry.eventID = EventTriggerType.PointerExit;
-        exitEntry.callback.AddListener((data) => { OnButtonExit(); });
-        trigger.triggers.Add(exitEntry);
+        EventTrigger.Entry exit = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerExit
+        };
+        exit.callback.AddListener((_) =>
+        {
+            descriptionText.text = slogans[Random.Range(0, slogans.Length)];
+            descriptionText.color = Color.white;
+            jitter?.StopJitter();
+        });
+
+        trigger.triggers.Add(enter);
+        trigger.triggers.Add(exit);
     }
 
-    void OnButtonHover(string description)
+    void LoadScene(string scene)
     {
-        if (descriptionText != null)
-        {
-            descriptionText.text = description;
-        }
-
-        if (audioSource != null && hoverSound != null)
-        {
-            audioSource.PlayOneShot(hoverSound);
-        }
-    }
-
-    void OnButtonExit()
-    {
-        if (descriptionText != null)
-        {
-            descriptionText.text = defaultDescription;
-        }
-    }
-
-    void LoadScene(string sceneName)
-    {
-        PlayButtonSound();
-        Debug.Log($"Loading scene: {sceneName}");
-        SceneManager.LoadScene(sceneName);
+        audioSource?.PlayOneShot(buttonClickSound);
+        SceneManager.LoadScene(scene);
     }
 
     void ExitGame()
     {
-        PlayButtonSound();
-        Debug.Log("Exiting game...");
+        audioSource?.PlayOneShot(buttonClickSound);
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();
 #endif
-    }
-
-    void PlayButtonSound()
-    {
-        if (audioSource != null && buttonClickSound != null)
-        {
-            audioSource.PlayOneShot(buttonClickSound);
-        }
     }
 }

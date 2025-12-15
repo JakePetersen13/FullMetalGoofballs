@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
 public class TutorialManager : MonoBehaviour
@@ -18,7 +19,7 @@ public class TutorialManager : MonoBehaviour
     public PlayerHealthUI playerHealthUI; // Add this reference
     public int kills = 0;
 
-    [Range(1, 8)]
+    [Range(1, 10)]
     public int progressCounter = 1;
 
     [Header("---Audio---")]
@@ -35,6 +36,8 @@ public class TutorialManager : MonoBehaviour
     public AudioClip arenaDialouge2;
     public AudioClip arenaDialouge3;
     public AudioClip nullAudio = null;
+
+    public bool endTutorial = false;
 
     [Header("---Controls---")]
     public float resetFadeDuration = 0.5f;
@@ -115,8 +118,7 @@ public class TutorialManager : MonoBehaviour
                 }
                 break;
             case 9:
-                audioSource.pitch = 1f;
-                waitToEndScene(arenaDialouge3.length + 1f);
+                StartCoroutine(waitToEndScene(arenaDialouge3.length + 1f));
                 progressCounter++;
                 break;
             case 10:
@@ -124,9 +126,10 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    void updateHealth()
+    IEnumerator waitToEndScene(float time)
     {
-
+        yield return new WaitForSecondsRealtime(time);
+        SceneManager.LoadScene("MainMenu");
     }
 
     void disableMovement(float seconds)
@@ -157,28 +160,6 @@ public class TutorialManager : MonoBehaviour
         enemy2.canLunge = true;
         enemy3.canLunge = true;
         enemy4.canLunge = true;
-    }
-
-    IEnumerator waitToEndScene(float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
-        FadeOverlay fadeOverlay = FadeOverlay.Instance;
-        float fadeDuration = 1f;
-        float elapsed = 0f;
-
-        while (elapsed < fadeDuration)
-        {
-            elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(0f, 1f, elapsed / fadeDuration);
-            fadeOverlay.SetAlpha(alpha);
-            yield return null;
-        }
-        fadeOverlay.SetAlpha(1f);
-
-        // Restart scene
-        UnityEngine.SceneManagement.SceneManager.LoadScene(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-        );
     }
 
     IEnumerator audioWaitThenPlayInOrder(float seconds, AudioClip clip1, AudioClip clip2, AudioClip clip3)
@@ -224,47 +205,5 @@ public class TutorialManager : MonoBehaviour
         }
 
         fadeOverlay.SetAlpha(0f);
-    }
-
-    IEnumerator ResetLevel()
-    {
-        Debug.Log("Resetting level...");
-
-        // Disable player movement during reset
-        if (playerController != null)
-        {
-            playerController.canMove = false;
-        }
-
-        // Fade out
-        FadeOverlay fadeOverlay = FadeOverlay.Instance;
-        float elapsed = 0f;
-
-        while (elapsed < resetFadeDuration)
-        {
-            elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(0f, 1f, elapsed / resetFadeDuration);
-            fadeOverlay.SetAlpha(alpha);
-            yield return null;
-        }
-
-        fadeOverlay.SetAlpha(1f);
-
-        // Reload current scene
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    void QuitGame()
-    {
-        Debug.Log("Quitting game...");
-        Application.Quit();
-        
-        #if UNITY_EDITOR
-        // Stop playing in editor
-        UnityEditor.EditorApplication.isPlaying = false;
-        #else
-        // Quit application in build
-        Application.Quit();
-        #endif
     }
 }
