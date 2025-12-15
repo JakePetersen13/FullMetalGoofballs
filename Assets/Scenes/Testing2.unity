@@ -1622,7 +1622,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 79ba151e844115a41b76eca844525a32, type: 3}
+  m_audioClip: {fileID: 8300000, guid: a37079a8ca9a9744aa354bae9361396a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1721,8 +1721,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clipSize: 6
-  extraAmmo: 24
+  extraAmmo: 12
   currentAmmo: 0
+  reloadSound: {fileID: 8300000, guid: 179e97ab5cb353544bdeeb25fb4a006a, type: 3}
 --- !u!114 &1630527395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4458,6 +4459,7 @@ GameObject:
   - component: {fileID: 7834639528744909491}
   - component: {fileID: 7834639528744909490}
   - component: {fileID: 7834639528744909489}
+  - component: {fileID: 7834639528744909492}
   m_Layer: 7
   m_Name: Player Model
   m_TagString: Untagged
@@ -4552,6 +4554,23 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7834639528744909492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834639528744909488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17dc539cea288dd4bb3731c937151703, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentWeapon: {fileID: 1626825360}
+  anim: {fileID: 7834639528744909491}
+  ammo: {fileID: 0}
+  rHandAim: {fileID: 1295584188}
+  lHandIK: {fileID: 16002957}
 --- !u!4 &7845847204074266864
 Transform:
   m_ObjectHideFlags: 0

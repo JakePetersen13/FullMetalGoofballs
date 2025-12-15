@@ -16,6 +16,7 @@ public class BananaSniper : MonoBehaviour
     [SerializeField] int bulletsPerShot;
     AimStateManager aim;
     WeaponAmmo ammo;
+    ActionStateManager actions;
 
     [Header("Audio")]
     [SerializeField] AudioSource bananaShotSound;
@@ -27,6 +28,7 @@ public class BananaSniper : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         aim = GetComponentInParent<AimStateManager>();
         ammo = GetComponent<WeaponAmmo>();
+        actions = GetComponentInParent<ActionStateManager>();
         fireRateTimer = fireRate;
     }
 
@@ -34,7 +36,6 @@ public class BananaSniper : MonoBehaviour
     void LateUpdate()
     {
         if (ShouldFire()) Fire();
-        Debug.Log(ammo.currentAmmo);
     }
 
     bool ShouldFire()
@@ -42,6 +43,7 @@ public class BananaSniper : MonoBehaviour
         fireRateTimer += Time.deltaTime;
         if (fireRateTimer < fireRate) return false;
         if (ammo.currentAmmo == 0) return false;
+        if(actions.currentState == actions.Reload) return false;
         if (semiAuto && Input.GetKeyDown(KeyCode.Mouse0)) return true;
         if (!semiAuto && Input.GetKey(KeyCode.Mouse0)) return true;
         return false;
