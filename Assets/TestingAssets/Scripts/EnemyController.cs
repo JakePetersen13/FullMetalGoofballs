@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -11,17 +12,20 @@ public class EnemyController : MonoBehaviour
     public Rigidbody rb;
     public Rigidbody ragdollHips;
     public Barbecue targetBarbecue; // The player's barbecue to attack
+    public Barbecue ownBarbecue;
 
     [Header("---AI Settings---")]
     public bool canLunge = true;
     public float detectionRange = 10f;
     public float lungeRange = 5f;
     public float moveSpeed = 8f;
+    public float barbecueDefenseRadius = 8f; // Distance to collapse to barbecue when threats nearby
 
     [Header("---AI Attack---")]
     public float baseLungeForce = 15f;
     public float aiLungeDuration = 0.3f;
     public float aiLungeCooldown = 2f;
+    public GameObject impactParticlePrefab; // Impact effect when hitting something
 
     [Header("---Weapon---")]
     public WeaponData enemyWeapon;
@@ -33,8 +37,19 @@ public class EnemyController : MonoBehaviour
     public float gravityForce = 15f;
     public float ragdollRotationTorque = 50f;
 
+    [Header("---Audio---")]
+    public AudioPlayerHelper audioPlayer;
+    public AudioSource audioSource;
+    public AudioClip punch1;
+    public AudioClip punch2;
+    public AudioClip deathSound;
+    public AudioClip BBQHit;
+    public float minPitchVariation = 0.6f;
+    public float maxPitchVariation = 1.4f;
+    public float deathSoundDelay = 1.5f; // How long to wait before deactivating after death sound
+
     private Transform player;
-    private bool isLunging = false;
+    public bool isLunging = false;
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
     private bool hasDealtDamage = false;
@@ -61,6 +76,11 @@ public class EnemyController : MonoBehaviour
                 if (bbq.team == Team.Player)
                 {
                     targetBarbecue = bbq;
+                    break;
+                }
+                else
+                {
+                    ownBarbecue = bbq;
                     break;
                 }
             }
@@ -99,6 +119,8 @@ public class EnemyController : MonoBehaviour
     void FixedUpdate()
     {
         if (isDead) return;
+
+        UpdateClosestPlayer();
 
         ApplyGravity();
         UpdateLunge();
@@ -266,9 +288,20 @@ public class EnemyController : MonoBehaviour
         // Disable AI behavior
         canLunge = false;
 
-        // Optional: Add death effects here (particles, sounds, etc.)
+        // Play death sound and wait before deactivating
+        PlayDeathScream();
 
-        Destroy(gameObject); // Destroy after 2 seconds
+        // Start coroutine to deactivate after sound plays
+        StartCoroutine(DeactivateAfterDeath());
+    }
+
+    IEnumerator DeactivateAfterDeath()
+    {
+        // Wait for the death sound to finish playing
+        yield return new WaitForSeconds(deathSoundDelay);
+
+        // Now deactivate the GameObject
+        gameObject.SetActive(false);
     }
 
     // Detect collision with player during lunge
@@ -284,16 +317,104 @@ public class EnemyController : MonoBehaviour
                 {
                     playerController.TakeDamage(aiLungeDamage);
                     hasDealtDamage = true;
+
+                    // Spawn impact particle at collision point
+                    SpawnImpactEffect(collision);
+                    PlayRandomPunchSound();
+
                     Debug.Log("Enemy hit player for " + aiLungeDamage + " damage!");
                 }
             }
             // Hit player's barbecue
             else if (targetBarbecue != null && collision.gameObject == targetBarbecue.gameObject)
             {
-                targetBarbecue.TakeDamage(aiLungeDamage, gameObject);
-                hasDealtDamage = true;
-                Debug.Log("Enemy hit player's barbecue for " + aiLungeDamage + " damage!");
+                SpawnImpactEffect(collision);
+                audioSource.PlayOneShot(BBQHit);
             }
+
         }
     }
+
+    void PlayRandomPunchSound()
+    {
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Audio Source not assigned!");
+            return;
+        }
+
+        // Randomly select punch1 or punch2
+        AudioClip selectedClip = UnityEngine.Random.value > 0.5f ? punch1 : punch2;
+
+        if (selectedClip != null)
+        {
+            // Randomize pitch within the specified range
+            audioSource.pitch = UnityEngine.Random.Range(minPitchVariation, maxPitchVariation);
+
+            // Play the sound
+            audioSource.PlayOneShot(selectedClip);
+        }
+        else
+        {
+            Debug.LogWarning("Punch audio clips not assigned!");
+        }
+    }
+
+    void PlayDeathScream()
+    {
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Audio Source not assigned!");
+            return;
+        }
+
+        if (deathSound != null)
+        {
+            audioSource.pitch = UnityEngine.Random.Range(minPitchVariation, maxPitchVariation);
+            audioSource.PlayOneShot(deathSound);
+        }
+        else
+        {
+            Debug.LogWarning("Death sound not assigned!");
+        }
+    }
+
+    void SpawnImpactEffect(Collision collision)
+    {
+        if (impactParticlePrefab != null && collision.contactCount > 0)
+        {
+            // Get the contact point
+            ContactPoint contact = collision.GetContact(0);
+
+            // Spawn particle at contact point
+            GameObject impact = Instantiate(impactParticlePrefab, contact.point, Quaternion.LookRotation(contact.normal));
+
+            // Destroy after particle duration (default 2 seconds)
+            Destroy(impact, 2f);
+        }
+    }
+
+    void UpdateClosestPlayer()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        float closestDistanceSqr = float.MaxValue;
+        Transform closestPlayer = null;
+
+        Vector3 currentPosition = transform.position;
+
+        foreach (GameObject p in players)
+        {
+            float distSqr = (p.transform.position - currentPosition).sqrMagnitude;
+
+            if (distSqr < closestDistanceSqr)
+            {
+                closestDistanceSqr = distSqr;
+                closestPlayer = p.transform;
+            }
+        }
+
+        player = closestPlayer;
+    }
+
 }

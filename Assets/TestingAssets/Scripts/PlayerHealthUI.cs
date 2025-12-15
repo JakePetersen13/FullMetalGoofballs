@@ -32,6 +32,7 @@ public class PlayerHealthUI : MonoBehaviour
 
     public float targetHealth;
     public float displayedHealth;
+    public float healthPercent = 1f;
 
     void Start()
     {
@@ -83,7 +84,7 @@ public class PlayerHealthUI : MonoBehaviour
     void UpdateHealthUI()
     {
         float maxHealth = playerController.maxHP;
-        float healthPercent = displayedHealth / maxHealth;
+        healthPercent = displayedHealth / maxHealth;
 
         // Update slider
         if (healthSlider != null)

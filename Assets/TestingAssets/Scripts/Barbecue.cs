@@ -42,15 +42,6 @@ public class Barbecue : MonoBehaviour
         UpdateHealthUI();
     }
 
-    void Update()
-    {
-        // Test damage with T key
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TakeDamage(10f, null);
-        }
-    }
-
     void CreateHealthUI()
     {
         // Find or create a canvas for world space UI
@@ -137,19 +128,32 @@ public class Barbecue : MonoBehaviour
         // Check if hit by player lunge
         if (CompareTag("Enemy") && collision.gameObject.CompareTag("Player"))
         {
-            PlayerController player = collision.gameObject.GetComponent<PlayerController>();
-            if (player != null && player.GetComponent<PlayerController>() != null)
+            if (collision.gameObject.name == "Player")
             {
-                // Check if player is lunging (you may need to add a public isLunging getter)
-                float damage = 25f; // Or get from player's weapon
-                TakeDamage(damage, collision.gameObject);
+                PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+                if (player != null && player.GetComponent<PlayerController>() != null && player.isLunging)
+                {
+                    // Check if player is lunging (you may need to add a public isLunging getter)
+                    float damage = 25f; // Or get from player's weapon
+                    TakeDamage(damage, collision.gameObject);
+                }
+            }
+            else
+            {
+                PlayerAI playerAi = collision.gameObject.GetComponent<PlayerAI>();
+                if (playerAi != null && playerAi.GetComponent<PlayerController>() != null && playerAi.isLunging)
+                {
+                    // Check if player is lunging (you may need to add a public isLunging getter)
+                    float damage = 25f; // Or get from player's weapon
+                    TakeDamage(damage, collision.gameObject);
+                }
             }
         }
         // Check if hit by enemy lunge
         else if (CompareTag("Player") && collision.gameObject.CompareTag("Enemy"))
         {
             EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
-            if (enemy != null && !enemy.isDead)
+            if (enemy != null && !enemy.isDead && enemy.isLunging)
             {
                 // Enemy hit player's barbecue
                 float damage = 25f; // Or get from enemy's weapon

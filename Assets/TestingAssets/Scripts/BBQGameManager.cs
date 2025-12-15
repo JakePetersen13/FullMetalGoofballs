@@ -28,8 +28,6 @@ public class GameManager : MonoBehaviour
 
     [Header("---Player Respawn---")]
     public GameObject playerObject;
-    public PlayerController playerController;
-    public PlayerHealthUI playerHealthUI;
     public Transform playerSpawnPoint;
     public float playerRespawnDelay = 2f;
 
@@ -44,6 +42,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+
+        //StartCoroutine(waitForGameStart());
         // Subscribe to barbecue destruction events
         if (playerBarbecue != null)
         {
@@ -81,9 +81,29 @@ public class GameManager : MonoBehaviour
             StartCoroutine(RespawnPlayer());
         }
 
-        // Clean up null references from destroyed AI
+        // Clean up null references and check for inactive AI
         activePlayerAIs.RemoveAll(ai => ai == null);
         activeEnemies.RemoveAll(enemy => enemy == null);
+
+        // Check for inactive PlayerAI and respawn them
+        for (int i = activePlayerAIs.Count - 1; i >= 0; i--)
+        {
+            if (activePlayerAIs[i] != null && !activePlayerAIs[i].gameObject.activeInHierarchy)
+            {
+                Destroy(activePlayerAIs[i]);
+                activePlayerAIs.RemoveAt(i);
+            }
+        }
+
+        // Check for inactive Enemies and respawn them
+        for (int i = activeEnemies.Count - 1; i >= 0; i--)
+        {
+            if (activeEnemies[i] != null && !activeEnemies[i].gameObject.activeInHierarchy)
+            {
+                Destroy(activeEnemies[i]);
+                activeEnemies.RemoveAt(i);
+            }
+        }
 
         // Check and spawn PlayerAI if needed
         if (activePlayerAIs.Count < maxPlayerAI && Time.time >= lastPlayerAISpawnTime + spawnInterval)
@@ -159,6 +179,7 @@ public class GameManager : MonoBehaviour
     IEnumerator RespawnPlayer()
     {
         isRespawningPlayer = true;
+        playerObject.GetComponent<PlayerController>().isDead = false;
 
         // Wait for respawn delay
         yield return new WaitForSeconds(playerRespawnDelay);
@@ -177,9 +198,7 @@ public class GameManager : MonoBehaviour
                 rb.angularVelocity = Vector3.zero;
             }
 
-            playerController.HP = playerController.maxHP;
-            playerHealthUI.targetHealth = playerController.maxHP;
-
+            playerObject.GetComponent<PlayerController>().HP = playerObject.GetComponent<PlayerController>().maxHP;
             // Reactivate the player
             playerObject.SetActive(true);
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -11,17 +12,20 @@ public class PlayerAI : MonoBehaviour
     public Rigidbody rb;
     public Rigidbody ragdollHips;
     public Barbecue targetBarbecue; // The enemy's barbecue to attack
+    public Barbecue ownBarbecue;
 
     [Header("---AI Settings---")]
     public bool canLunge = true;
     public float detectionRange = 10f;
     public float lungeRange = 5f;
     public float moveSpeed = 8f;
+    public float barbecueDefenseRadius = 8f; // Distance to collapse to barbecue when threats nearby
 
     [Header("---AI Attack---")]
     public float baseLungeForce = 15f;
     public float aiLungeDuration = 0.3f;
     public float aiLungeCooldown = 2f;
+    public GameObject impactParticlePrefab; // Impact effect when hitting something
 
     [Header("---Weapon---")]
     public WeaponData weapon;
@@ -33,8 +37,19 @@ public class PlayerAI : MonoBehaviour
     public float gravityForce = 15f;
     public float ragdollRotationTorque = 50f;
 
+    [Header("---Audio---")]
+    public AudioPlayerHelper audioPlayer;
+    public AudioSource audioSource;
+    public AudioClip punch1;
+    public AudioClip punch2;
+    public AudioClip deathSound;
+    public AudioClip BBQHit;
+    public float minPitchVariation = 0.6f;
+    public float maxPitchVariation = 1.4f;
+    public float deathSoundDelay = 1.5f; // How long to wait before deactivating after death sound
+
     private Transform nearestEnemy;
-    private bool isLunging = false;
+    public bool isLunging = false;
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
     private bool hasDealtDamage = false;
@@ -54,6 +69,12 @@ public class PlayerAI : MonoBehaviour
                 if (bbq.team == Team.Enemy)
                 {
                     targetBarbecue = bbq;
+
+                    break;
+                }
+                else
+                {
+                    ownBarbecue = bbq;
                     break;
                 }
             }
@@ -121,8 +142,41 @@ public class PlayerAI : MonoBehaviour
             distanceToBarbecue = Vector3.Distance(transform.position, targetBarbecue.transform.position);
         }
 
-        // Prioritize enemy if in detection range, otherwise go for barbecue
-        if (nearestEnemy != null && distanceToEnemy <= detectionRange)
+        // Check if enemy is near our barbecue (defensive collapse)
+        bool shouldDefendBarbecue = false;
+        Barbecue ourBarbecue = FindOurBarbecue();
+        if (ourBarbecue != null && nearestEnemy != null)
+        {
+            float enemyDistanceToOurBBQ = Vector3.Distance(nearestEnemy.position, ourBarbecue.transform.position);
+            if (enemyDistanceToOurBBQ <= barbecueDefenseRadius)
+            {
+                shouldDefendBarbecue = true;
+            }
+        }
+
+        // Priority 1: Defend our barbecue if enemy is nearby
+        if (shouldDefendBarbecue && ourBarbecue != null)
+        {
+            float distanceToOurBBQ = Vector3.Distance(transform.position, ourBarbecue.transform.position);
+
+            // Rotate towards our barbecue
+            RotateTowards(ourBarbecue.transform.position);
+
+            // Move to our barbecue if not already there
+            if (distanceToOurBBQ > 2f)
+            {
+                MoveTowards(ourBarbecue.transform.position);
+            }
+
+            // Attack enemy if in range while defending
+            if (canLunge && distanceToEnemy <= lungeRange && cooldownTimer <= 0f)
+            {
+                RotateTowards(nearestEnemy.position);
+                StartLunge();
+            }
+        }
+        // Priority 2: Prioritize enemy if in detection range
+        else if (nearestEnemy != null && distanceToEnemy <= detectionRange)
         {
             currentTarget = nearestEnemy;
 
@@ -140,9 +194,9 @@ public class PlayerAI : MonoBehaviour
                 MoveTowards(nearestEnemy.position);
             }
         }
+        // Priority 3: No enemy in range, go after barbecue
         else if (targetBarbecue != null)
         {
-            // No enemy in range, go after barbecue
             currentTarget = targetBarbecue.transform;
 
             // Rotate towards barbecue
@@ -159,6 +213,20 @@ public class PlayerAI : MonoBehaviour
                 MoveTowards(targetBarbecue.transform.position);
             }
         }
+    }
+
+    Barbecue FindOurBarbecue()
+    {
+        // Find the player team's barbecue (our barbecue)
+        Barbecue[] allBarbecues = FindObjectsOfType<Barbecue>();
+        foreach (Barbecue bbq in allBarbecues)
+        {
+            if (bbq.team == Team.Player)
+            {
+                return bbq;
+            }
+        }
+        return null;
     }
 
     void FindNearestEnemy()
@@ -276,6 +344,19 @@ public class PlayerAI : MonoBehaviour
         OnDeath?.Invoke(this);
         canLunge = false;
 
+        // Play death sound and wait before deactivating
+        PlayDeathScream();
+
+        // Start coroutine to deactivate after sound plays
+        StartCoroutine(DeactivateAfterDeath());
+    }
+
+    IEnumerator DeactivateAfterDeath()
+    {
+        // Wait for the death sound to finish playing
+        yield return new WaitForSeconds(deathSoundDelay);
+
+        // Now deactivate the GameObject
         gameObject.SetActive(false);
     }
 
@@ -291,16 +372,79 @@ public class PlayerAI : MonoBehaviour
                 {
                     enemy.TakeDamage(aiLungeDamage);
                     hasDealtDamage = true;
+
+                    PlayRandomPunchSound();
+                    // Spawn impact particle at collision point
+                    SpawnImpactEffect(collision);
+
                     Debug.Log("PlayerAI hit enemy for " + aiLungeDamage + " damage!");
                 }
             }
             // Hit enemy's barbecue
             else if (targetBarbecue != null && collision.gameObject == targetBarbecue.gameObject)
             {
-                targetBarbecue.TakeDamage(aiLungeDamage, gameObject);
-                hasDealtDamage = true;
-                Debug.Log("PlayerAI hit enemy's barbecue for " + aiLungeDamage + " damage!");
+                SpawnImpactEffect(collision);
+                audioSource.PlayOneShot(BBQHit);
             }
+        }
+    }
+
+    void PlayRandomPunchSound()
+    {
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Audio Source not assigned!");
+            return;
+        }
+
+        // Randomly select punch1 or punch2
+        AudioClip selectedClip = UnityEngine.Random.value > 0.5f ? punch1 : punch2;
+
+        if (selectedClip != null)
+        {
+            // Randomize pitch within the specified range
+            audioSource.pitch = UnityEngine.Random.Range(minPitchVariation, maxPitchVariation);
+
+            // Play the sound
+            audioSource.PlayOneShot(selectedClip);
+        }
+        else
+        {
+            Debug.LogWarning("Punch audio clips not assigned!");
+        }
+    }
+
+    void PlayDeathScream()
+    {
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Audio Source not assigned!");
+            return;
+        }
+
+        if (deathSound != null)
+        {
+            audioSource.pitch = UnityEngine.Random.Range(minPitchVariation, maxPitchVariation);
+            audioSource.PlayOneShot(deathSound);
+        }
+        else
+        {
+            Debug.LogWarning("Death sound not assigned!");
+        }
+    }
+
+    void SpawnImpactEffect(Collision collision)
+    {
+        if (impactParticlePrefab != null && collision.contactCount > 0)
+        {
+            // Get the contact point
+            ContactPoint contact = collision.GetContact(0);
+
+            // Spawn particle at contact point
+            GameObject impact = Instantiate(impactParticlePrefab, contact.point, Quaternion.LookRotation(contact.normal));
+
+            // Destroy after particle duration (default 2 seconds)
+            Destroy(impact, 2f);
         }
     }
 }

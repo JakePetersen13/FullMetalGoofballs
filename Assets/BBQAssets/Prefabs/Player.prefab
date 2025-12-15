@@ -104,9 +104,6 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   ragdollHips: {fileID: 9038256810145991295}
   ragdollRotationTorque: 800
-  rightUpperArm: {fileID: 9103295111214879404}
-  rightLowerArm: {fileID: 4402423762840016169}
-  weaponHolder: {fileID: 0}
   weaponPositionOffset: {x: 0, y: 0, z: 0}
   weaponRotationOffset: {x: 0, y: 0, z: 0}
   weaponScaleOverride: {x: 1, y: 1, z: 1}
@@ -114,9 +111,21 @@ MonoBehaviour:
   lungeDuration: 0.3
   lungeCooldown: 2
   currentWeapon: {fileID: 11400000, guid: 546b3ecb095f134498a290da2891b336, type: 2}
+  isLunging: 0
   HP: 25
   maxHP: 25
   canMove: 1
+  audioPlayer: {fileID: 0}
+  audioSource: {fileID: 0}
+  punch1: {fileID: 0}
+  punch2: {fileID: 0}
+  deathSound: {fileID: 0}
+  BBQHit: {fileID: 0}
+  minPitchVariation: 0.8
+  maxPitchVariation: 1.2
+  deathSoundDelay: 0.5
+  impactParticlePrefab: {fileID: 0}
+  isDead: 0
 --- !u!1001 &6224513613895025063
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -390,11 +399,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 946bc120def3e1a45a3ff34fb35fb3bd, type: 3}
---- !u!54 &4402423762840016169 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 7744334496288904334, guid: 946bc120def3e1a45a3ff34fb35fb3bd, type: 3}
-  m_PrefabInstance: {fileID: 6224513613895025063}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6050479256592030468 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 402637810663840419, guid: 946bc120def3e1a45a3ff34fb35fb3bd, type: 3}
@@ -403,10 +407,5 @@ Transform:
 --- !u!54 &9038256810145991295 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 3102905968003517400, guid: 946bc120def3e1a45a3ff34fb35fb3bd, type: 3}
-  m_PrefabInstance: {fileID: 6224513613895025063}
-  m_PrefabAsset: {fileID: 0}
---- !u!54 &9103295111214879404 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 2897094989912249099, guid: 946bc120def3e1a45a3ff34fb35fb3bd, type: 3}
   m_PrefabInstance: {fileID: 6224513613895025063}
   m_PrefabAsset: {fileID: 0}

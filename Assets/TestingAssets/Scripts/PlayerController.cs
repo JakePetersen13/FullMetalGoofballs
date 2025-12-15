@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,9 +15,6 @@ public class PlayerController : MonoBehaviour
     [Header("---Ragdoll---")]
     public Rigidbody ragdollHips;
     public float ragdollRotationTorque;
-    public Rigidbody rightUpperArm;
-    public Rigidbody rightLowerArm;
-    public Transform weaponHolder; // Attach weapon model here (right hand)
     public Vector3 weaponPositionOffset = Vector3.zero;
     public Vector3 weaponRotationOffset = Vector3.zero;
     public Vector3 weaponScaleOverride = Vector3.one; // Force weapon scale
@@ -29,7 +27,7 @@ public class PlayerController : MonoBehaviour
     [Header("---Weapon---")]
     public WeaponData currentWeapon;
 
-    private bool isLunging = false;
+    public bool isLunging = false;
     private float lungeTimer = 0f;
     private float cooldownTimer = 0f;
     private bool hasDealtDamage = false;
@@ -40,11 +38,29 @@ public class PlayerController : MonoBehaviour
     public float maxHP = 100f;
     public bool canMove = true; // Toggle to disable/enable movement
 
+    [Header("---Audio---")]
+    public AudioPlayerHelper audioPlayer;
+    public AudioSource audioSource;
+    public AudioClip punch1;
+    public AudioClip punch2;
+    public AudioClip deathSound;
+    public AudioClip BBQHit;
+    [Range(0.8f, 1.2f)]
+    public float minPitchVariation = 0.9f;
+    [Range(0.8f, 1.2f)]
+    public float maxPitchVariation = 1.1f;
+    public float deathSoundDelay = 1.5f; // How long to wait before deactivating after death sound
+
+    [Header("---Particle---")]
+    public GameObject impactParticlePrefab; // Impact effect when hitting something
+    public GameObject hurtParticlePrefab; 
+
     // Calculated values based on weapon
     private float maxSpeed;
     private float lungeForce;
     private float lungeDamage;
 
+    public bool isDead = false;
     void Start()
     {
         EquipWeapon(currentWeapon);
@@ -212,7 +228,43 @@ public class PlayerController : MonoBehaviour
 
     void Die()
     {
+        if (isDead) return;
+
+        isDead = true;
         Debug.Log("Player died!");
+
+        // Play death sound and wait before deactivating
+        PlayDeathScream();
+
+        // Start coroutine to deactivate after sound plays
+        StartCoroutine(DeactivateAfterDeath());
+    }
+
+    void PlayDeathScream()
+    {
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Audio Source not assigned!");
+            return;
+        }
+
+        if (deathSound != null)
+        {
+            audioSource.pitch = UnityEngine.Random.Range(minPitchVariation, maxPitchVariation);
+            audioSource.PlayOneShot(deathSound);
+        }
+        else
+        {
+            Debug.LogWarning("Death sound not assigned!");
+        }
+    }
+
+    IEnumerator DeactivateAfterDeath()
+    {
+        // Wait for the death sound to finish playing
+        yield return new WaitForSeconds(deathSoundDelay);
+
+        // Now deactivate the GameObject
         this.gameObject.SetActive(false);
     }
 
@@ -222,6 +274,27 @@ public class PlayerController : MonoBehaviour
         HP -= damage;
         HP = Mathf.Clamp(HP, 0f, maxHP);
         Debug.Log($"Player took {damage} damage. HP: {HP}");
+
+        // Hurt effect in front of camera
+        float distanceFromCamera = 0.5f;
+
+        Vector3 hurtPos = mainCamera.transform.position +
+                          mainCamera.transform.forward * distanceFromCamera;
+
+        GameObject hurt = Instantiate(
+            hurtParticlePrefab,
+            hurtPos,
+            Quaternion.identity
+        );
+        Debug.Log("WE DID IT");
+
+        // Parent to camera so it follows view
+        hurt.transform.SetParent(mainCamera.transform);
+
+        // Face the camera (for quads / particles)
+        hurt.transform.LookAt(mainCamera.transform);
+
+        Destroy(hurt, 2f);
     }
 
     // Detect collision with enemies during lunge
@@ -229,13 +302,66 @@ public class PlayerController : MonoBehaviour
     {
         if (isLunging && !hasDealtDamage && collision.gameObject.CompareTag("Enemy"))
         {
-            EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
-            if (enemy != null)
+            if (collision.gameObject.layer == LayerMask.NameToLayer("BBQ"))
             {
-                enemy.TakeDamage(lungeDamage);
-                hasDealtDamage = true;
-                Debug.Log($"Player hit enemy for {lungeDamage} damage with {currentWeapon.weaponName}!");
+                SpawnImpactEffect(collision);
+                audioSource.PlayOneShot(BBQHit);
+            }
+            else
+            {
+                EnemyController enemy = collision.gameObject.GetComponent<EnemyController>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(lungeDamage);
+                    hasDealtDamage = true;
+
+                    SpawnImpactEffect(collision);
+                    PlayRandomPunchSound();
+                    Debug.Log($"Player hit enemy for {lungeDamage} damage with {currentWeapon.weaponName}!");
+                }
             }
         }
     }
+
+    void PlayRandomPunchSound()
+    {
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Audio Source not assigned!");
+            return;
+        }
+
+        // Randomly select punch1 or punch2
+        AudioClip selectedClip = Random.value > 0.5f ? punch1 : punch2;
+
+        if (selectedClip != null)
+        {
+            // Randomize pitch within the specified range
+            audioSource.pitch = Random.Range(minPitchVariation, maxPitchVariation);
+
+            // Play the sound
+            audioSource.PlayOneShot(selectedClip);
+        }
+        else
+        {
+            Debug.LogWarning("Punch audio clips not assigned!");
+        }
+    }
+
+    void SpawnImpactEffect(Collision collision)
+    {
+        if (impactParticlePrefab != null && collision.contactCount > 0)
+        {
+            // World impact effect
+            ContactPoint contact = collision.GetContact(0);
+            GameObject impact = Instantiate(
+                impactParticlePrefab,
+                contact.point,
+                Quaternion.LookRotation(contact.normal)
+            );
+            Destroy(impact, 2f);
+
+        }
+    }
+
 }
