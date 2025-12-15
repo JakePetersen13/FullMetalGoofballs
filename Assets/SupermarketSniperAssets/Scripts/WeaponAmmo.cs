@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class WeaponAmmo : MonoBehaviour
 {
-    public float clipSize;
-    public float extraAmmo;
-    public float currentAmmo;
+    public int clipSize;
+    public int extraAmmo;
+    public int currentAmmo;
+
+    public AudioClip reloadSound;
 
     // Start is called before the first frame update
     void Start()
@@ -14,22 +16,17 @@ public class WeaponAmmo : MonoBehaviour
         currentAmmo = clipSize;
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.R))  Reload();
-    }
-
     public void Reload()
     {
         if (extraAmmo >= clipSize)
         {
-            int ammoToReload = (int)(clipSize - currentAmmo);
+            int ammoToReload = clipSize - currentAmmo;
             extraAmmo -= ammoToReload;
             currentAmmo += ammoToReload;
         }
         else if (extraAmmo > 0)
         {
-            int leftOverAmmo = (int)(extraAmmo + currentAmmo - clipSize);
+            int leftOverAmmo = extraAmmo + currentAmmo - clipSize;
             extraAmmo = leftOverAmmo;
             currentAmmo = clipSize;
         }
