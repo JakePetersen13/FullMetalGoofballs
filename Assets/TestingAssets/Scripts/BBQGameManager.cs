@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -329,9 +330,15 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine(ShowVictoryScreen(victoryScreen));
 
         if (victoryScreen == redVictoryScreen)
+        {
             countdownAudioSource.PlayOneShot(redWins);
+            StartCoroutine(waitToEnd(redWins.length + 1f));
+        }
         else
+        {
             countdownAudioSource.PlayOneShot(blueWins);
+            StartCoroutine(waitToEnd(blueWins.length + 1f));
+        }
 
             // Fade in from black to reveal victory screen
             float fadeInDuration = 0.5f;
@@ -346,6 +353,12 @@ public class GameManager : MonoBehaviour
         }
 
         fadeOverlay.SetAlpha(0f);
+    }
+
+    IEnumerator waitToEnd(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        SceneManager.LoadScene("MainMenu");
     }
 
     IEnumerator ShowVictoryScreen(GameObject victoryScreen)

@@ -296,7 +296,7 @@ MonoBehaviour:
   exitButton: {fileID: 1975460690}
   descriptionText: {fileID: 973351295}
   tutorialSceneName: Tutorial
-  bbqSceneName: BBQ_Level
+  bbqSceneName: BBQ
   shoppingCartSceneName: ShoppingCart_Level
   audioSource: {fileID: 0}
   buttonClickSound: {fileID: 0}
