@@ -12,7 +12,6 @@ public class CreateMainMenu : MonoBehaviour
     [MenuItem("GameObject/UI/Create Goofy Military Main Menu", false, 14)]
     static void CreateMainMenuUI()
     {
-        // ================= CANVAS =================
         GameObject canvasObj = new GameObject("MainMenuCanvas");
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -23,7 +22,6 @@ public class CreateMainMenu : MonoBehaviour
 
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // ================= BACKGROUND =================
         GameObject bg = new GameObject("Background");
         bg.transform.SetParent(canvas.transform, false);
         Image bgImage = bg.AddComponent<Image>();
@@ -35,7 +33,6 @@ public class CreateMainMenu : MonoBehaviour
         bgRect.offsetMin = Vector2.zero;
         bgRect.offsetMax = Vector2.zero;
 
-        // ================= TITLE =================
         GameObject titleObj = new GameObject("Title");
         titleObj.transform.SetParent(canvas.transform, false);
 
@@ -51,7 +48,6 @@ public class CreateMainMenu : MonoBehaviour
         titleRect.anchorMax = new Vector2(0.5f, 0.75f);
         titleRect.sizeDelta = new Vector2(900, 250);
 
-        // ================= CLASSIFICATION STAMP =================
         GameObject stampObj = new GameObject("ClassificationStamp");
         stampObj.transform.SetParent(canvas.transform, false);
 
@@ -67,7 +63,6 @@ public class CreateMainMenu : MonoBehaviour
         stampRect.anchorMax = new Vector2(0.5f, 0.63f);
         stampRect.sizeDelta = new Vector2(700, 80);
 
-        // ================= DESCRIPTION =================
         GameObject descObj = new GameObject("DescriptionText");
         descObj.transform.SetParent(canvas.transform, false);
 
@@ -83,7 +78,6 @@ public class CreateMainMenu : MonoBehaviour
         descRect.anchorMax = new Vector2(0.5f, 0.55f);
         descRect.sizeDelta = new Vector2(1000, 120);
 
-        // ================= MENU PANEL =================
         GameObject menuPanel = new GameObject("MenuPanel");
         menuPanel.transform.SetParent(canvas.transform, false);
 
@@ -92,7 +86,6 @@ public class CreateMainMenu : MonoBehaviour
         menuRect.anchorMax = new Vector2(0.5f, 0.3f);
         menuRect.sizeDelta = new Vector2(520, 420);
 
-        // ================= BUTTONS =================
         Button tutorialBtn = CreateMenuButton(menuPanel, "TutorialButton",
             "BASIC TRAINING\n(NO SURVIVORS)", 0);
 
@@ -110,7 +103,6 @@ public class CreateMainMenu : MonoBehaviour
         exitColors.highlightedColor = new Color(1f, 0.3f, 0.3f);
         exitBtn.colors = exitColors;
 
-        // ================= MAIN MENU LOGIC =================
         MainMenu mainMenu = canvasObj.AddComponent<MainMenu>();
         mainMenu.tutorialButton = tutorialBtn;
         mainMenu.bbqButton = bbqBtn;
