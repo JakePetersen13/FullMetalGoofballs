@@ -2,7 +2,7 @@
 ## Setup
 1. Download the .zip file
 2. Extract all files from the zip
-3. Open the .exe file in the extracted file
+3. Open the CS4700_Project.exe file in the extracted file
 ## Features
 * Chaotic Gameplay
   * Over the top ragdoll physics
