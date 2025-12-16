@@ -10,3 +10,6 @@ able to finish one of the gamemodes we wanted.
 ## FIXES
 * Made ragdoll more stable
 * enemy AI can target different players
+* friction and drifting physics to shopping cart
+* reload animaitons
+* exit options due to menu errors
