@@ -36,6 +36,15 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f;
+
+        if (FindObjectOfType<EventSystem>() == null)
+        {
+            GameObject es = new GameObject("EventSystem");
+            es.AddComponent<EventSystem>();
+            es.AddComponent<StandaloneInputModule>();
+        }
+
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
 
@@ -46,16 +55,24 @@ public class MainMenu : MonoBehaviour
             () => LoadScene(tutorialSceneName));
 
         SetupButton(bbqButton,
-            "DEFEND THE GRILL.\nTHE MEAT MUST FLOW.",
+            "DEFEND THE GRILL.\nDESTROY THEIRS.\nTHE MEAT MUST FLOW.",
             () => LoadScene(bbqSceneName));
 
         SetupButton(shoppingCartButton,
-            "URBAN WARFARE.\nAISLE SEVEN IS HOSTILE.",
+            "URBAN WARFARE.\nAISLE SEVEN IS HOSTILE.\n*still undergoing operational planning",
             () => LoadScene(shoppingCartSceneName));
 
         SetupButton(exitButton,
             "DESERTION WILL BE NOTED.",
             ExitGame);
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ExitGame();
+        }
     }
 
     void SetupButton(Button button, string hoverText, UnityEngine.Events.UnityAction clickAction)

@@ -53,8 +53,26 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    void QuitGame()
+    {
+        Debug.Log("ESC pressed — quitting game");
+
+        #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+        #else
+                Application.Quit();
+        #endif
+
+        Application.Quit();
+    }
+
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            QuitGame();
+        }
+
         switch (progressCounter)
         {
             case 1:
